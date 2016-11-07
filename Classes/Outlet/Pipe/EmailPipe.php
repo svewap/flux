@@ -21,7 +21,9 @@ use TYPO3\CMS\Core\Mail\MailMessage;
  * Pipe if you want to - just as an example - create a proper
  * email body text containing a nice representaton of the data.
  */
-class EmailPipe extends AbstractPipe implements PipeInterface {
+class EmailPipe extends AbstractPipe implements PipeInterface, ViewAwarePipeInterface  {
+
+    use ViewAwarePipeTrait;
 
 	/**
 	 * @var string
@@ -38,10 +40,15 @@ class EmailPipe extends AbstractPipe implements PipeInterface {
 	 */
 	protected $sender;
 
-	/**
-	 * @var string|NULL
-	 */
-	protected $body = NULL;
+    /**
+     * @var string|NULL
+     */
+    protected $body = NULL;
+
+    /**
+     * @var string|NULL
+     */
+    protected $bodySection = NULL;
 
 	/**
 	 * @return FieldInterface[]
@@ -123,7 +130,23 @@ class EmailPipe extends AbstractPipe implements PipeInterface {
 		return $this->body;
 	}
 
-	/**
+    /**
+     * @return NULL|string
+     */
+    public function getBodySection()
+    {
+        return $this->bodySection;
+    }
+
+    /**
+     * @param NULL|string $bodySection
+     */
+    public function setBodySection($bodySection)
+    {
+        $this->bodySection = $bodySection;
+    }
+
+    /**
 	 * @param mixed $data
 	 * @return mixed
 	 * @throws Exception
@@ -143,7 +166,11 @@ class EmailPipe extends AbstractPipe implements PipeInterface {
 	 * @return MailMessage
 	 */
 	protected function prepareEmail($data) {
-		$body = $this->getBody();
+	    if ($this->getBodySection() !== null) {
+	        $body = $this->view->renderStandaloneSection($this->getBodySection(), $data);
+        } else {
+		    $body = $this->getBody();
+        }
 		$sender = $this->getSender();
 		$recipient = $this->getRecipient();
 		if (TRUE === is_array($recipient)) {

@@ -224,6 +224,11 @@ abstract class AbstractFluxController extends ActionController {
 	 * @return string
 	 */
 	protected function performSubRendering($extensionName, $controllerName, $actionName, $pluginSignature) {
+        if ($actionName == 'outlet') {
+            $input = array_replace(GeneralUtility::_GET($pluginSignature), GeneralUtility::_POST($pluginSignature));
+            return $this->outletAction($this->getRecord(), $input);
+        }
+
 		$shouldRelay = $this->hasSubControllerActionOnForeignController($extensionName, $controllerName, $actionName);
 		if (TRUE === $shouldRelay) {
 			$foreignControllerClass = $this->configurationService
@@ -318,5 +323,42 @@ abstract class AbstractFluxController extends ActionController {
 		$row = $this->configurationManager->getContentObject()->data;
 		return (array) $row;
 	}
+
+    /**
+     * @param array $record Record, automatically mapped from custom TypeConverter which receives only integer UID
+     * @param array $input Array of input from the Form
+     * @return string
+     */
+    public function outletAction(array $record, array $input)
+    {
+        $input['settings'] = $this->settings;
+        try {
+            $outlet = $this->provider->getForm($record)->getOutlet();
+            $outlet->setView($this->view);
+            $outlet->fill($input);
+            if ($outlet->isValid() !== true) {
+                $input = array_replace(
+                    $input,
+                    [
+                        'validationResults' => $outlet->getValidationResults()->getFlattenedErrors()
+                    ]
+                );
+                return $this->view->renderStandaloneSection('Main', $input, true);
+            } else {
+                // Pipes of Outlet get called in sequence to either return content or perform actions
+                // Outlet receives our local View which is pre-configured with paths. If one was not
+                // passed, a default StandaloneView is created with paths belonging to extension that
+                // contains the Form.
+                $input = array_replace(
+                    $input,
+                    $outlet->produce()
+                );
+                return $this->view->renderStandaloneSection('OutletSuccess', $input, true);
+            }
+        } catch (\RuntimeException $error) {
+            $input['error'] = $error;
+            return $this->view->renderStandaloneSection('OutletError', $input, true);
+        }
+    }
 
 }
