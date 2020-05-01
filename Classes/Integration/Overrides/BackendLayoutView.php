@@ -39,14 +39,6 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
         $this->record = $record;
     }
 
-    protected function initializeDataProviderCollection()
-    {
-        // This is an override designed to perform no operations except create a valid data provider collection instance
-        $this->setDataProviderCollection(GeneralUtility::makeInstance(DataProviderCollection::class));
-
-        parent::initializeDataProviderCollection();
-    }
-
     /**
      * Gets colPos items to be shown in the forms engine.
      * This method is called as "itemsProcFunc" with the accordant context
