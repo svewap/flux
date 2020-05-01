@@ -11,7 +11,6 @@ namespace FluidTYPO3\Flux\Integration\Overrides;
 use FluidTYPO3\Flux\Provider\Interfaces\GridProviderInterface;
 use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Utility\ColumnNumberUtility;
-use TYPO3\CMS\Backend\View\BackendLayout\DataProviderCollection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -65,14 +64,13 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
 
     public function getSelectedBackendLayout($pageId)
     {
-        $identifier = $this->getSelectedCombinedIdentifier($pageId);
-
-        // Early return parent method's output if selected identifier is not from Flux
-        if (substr($identifier, 0, 6) !== 'flux__') {
-            return parent::getSelectedBackendLayout($pageId);
-        }
-
         if ($this->addingItemsForContent) {
+            $identifier = $this->getSelectedCombinedIdentifier($pageId);
+
+            // Early return parent method's output if selected identifier is not from Flux
+            if (substr($identifier, 0, 6) !== 'flux__') {
+                return parent::getSelectedBackendLayout($pageId);
+            }
             $pageRecord = $this->loadRecordFromTable('pages', (int)$pageId);
             if (!$pageRecord) {
                 return null;
