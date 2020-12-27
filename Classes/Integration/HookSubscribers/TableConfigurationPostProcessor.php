@@ -31,13 +31,15 @@ class TableConfigurationPostProcessor implements TableConfigurationPostProcessin
 {
     /**
      * @param array $parameters
+     * @param TemplateService $caller
      * @return void
+     * @throws \TYPO3\CMS\Extbase\Reflection\Exception\PropertyNotAccessibleException
      */
     public function includeStaticTypoScriptHook(array $parameters, TemplateService $caller)
     {
-        if (!ObjectAccess::getProperty($caller, 'extensionStaticsProcessed', true)) {
+        //if (!ObjectAccess::getProperty($caller, 'extensionStaticsProcessed', true)) {
             $this->processData();
-        }
+        //}
     }
 
     /**
