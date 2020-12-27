@@ -133,8 +133,8 @@ class ContentTypeBuilder
         ExtensionUtility::configurePlugin(
             $providerExtensionName,
             $emulatedPluginName,
-            [$controllerName => $controllerAction . ',outlet,error'],
-            [$controllerName => 'outlet'],
+            [$controllerClassName => $controllerAction . ',outlet,error'],
+            [$controllerClassName => 'outlet'],
             ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
         );
     }
