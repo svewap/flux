@@ -91,7 +91,7 @@ class ContentTypeBuilder
         $provider->setFieldName('pi_flexform');
         $provider->setTableName('tt_content');
         $provider->setExtensionKey($providerExtensionName);
-        $provider->setControllerName($controllerName);
+        $provider->setControllerName($controllerClassName);
         $provider->setControllerAction($emulatedControllerAction);
         $provider->setTemplatePathAndFilename($templateFilename);
         $provider->setContentObjectType($fullContentType);
@@ -136,8 +136,8 @@ class ContentTypeBuilder
         ExtensionUtility::configurePlugin(
             $providerExtensionName,
             $emulatedPluginName,
-            [$controllerName => $controllerAction . ',outlet,error'],
-            [$controllerName => 'outlet'],
+            [$controllerClassName => $controllerAction . ',outlet,error'],
+            [$controllerClassName => 'outlet'],
             ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
         );
     }
