@@ -210,12 +210,12 @@ class ContentTypeBuilder
         if (isset($GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType])) {
             return $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType];
         }
-        $icon = MiscellaneousUtility::getIconForTemplate($form);
+        $icon = MiscellaneousUtility::getIconForTemplate($form) ?? '';
+        if ($icon === '') {
+            $icon = ExtensionManagementUtility::extPath('flux', 'Resources/Public/Icons/Extension.svg');
+        }
         if (strpos($icon, 'EXT:') === 0 || $icon[0] !== '/') {
             $icon = GeneralUtility::getFileAbsFileName($icon);
-        }
-        if (!$icon) {
-            $icon = ExtensionManagementUtility::extPath('flux', 'Resources/Public/Icons/Extension.svg');
         }
         $iconIdentifier = MiscellaneousUtility::createIcon(
             $icon,

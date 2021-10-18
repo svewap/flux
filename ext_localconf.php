@@ -2,17 +2,18 @@
 if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
+$_EXTCONF = $_EXTCONF ?? null;
 
 (function () use ($_EXTCONF) {
-    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'])) {
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = array(
+    if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] ?? null)) {
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = [
             'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
             'backend' => \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::class,
-            'groups' => array('system'),
+            'groups' => ['system'],
             'options' => [
                 'defaultLifetime' => 2592000,
             ],
-        );
+        ];
     }
 
     \FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::initialize($_EXTCONF);
@@ -22,16 +23,16 @@ if (!defined('TYPO3_MODE')) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['flux'] = ['FluidTYPO3\\Flux\\ViewHelpers'];
 
         // FormEngine integration between TYPO3 forms and Flux Providers
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\FluidTYPO3\Flux\Integration\FormEngine\ProviderProcessor::class] = array(
-            'depends' => array(
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\FluidTYPO3\Flux\Integration\FormEngine\ProviderProcessor::class] = [
+            'depends' => [
                 \TYPO3\CMS\Backend\Form\FormDataProvider\PageTsConfig::class,
                 \TYPO3\CMS\Backend\Form\FormDataProvider\TcaColumnsProcessCommon::class,
                 \TYPO3\CMS\Backend\Form\FormDataProvider\TcaColumnsProcessShowitem::class
-            ),
-            'before' => array(
+            ],
+            'before' => [
                 \TYPO3\CMS\Backend\Form\FormDataProvider\TcaColumnsRemoveUnused::class
-            )
-        );
+            ]
+        ];
 
         // FormEngine integration for custom TCA field types used by Flux
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeRegistry'][1575276512] = [

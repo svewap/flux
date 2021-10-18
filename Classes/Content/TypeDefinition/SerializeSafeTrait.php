@@ -19,7 +19,7 @@ use FluidTYPO3\Flux\Form;
  */
 trait SerializeSafeTrait
 {
-    abstract public function getForm(): Form;
+    abstract public function getForm(): Form\FormInterface;
     abstract public function getGrid(): ?Form\Container\Grid;
 
     public function __sleep()

@@ -404,7 +404,7 @@ class AbstractProvider implements ProviderInterface
             }
         }
 
-        $returnValue = $name ? $variables[$name] : $variables;
+        $returnValue = $name ? ($variables[$name] ?? null) : $variables;
 
         return HookHandler::trigger(
             HookHandler::PROVIDER_EXTRACTED_OBJECT,
