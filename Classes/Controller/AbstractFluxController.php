@@ -17,6 +17,7 @@ use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\RecursiveArrayUtility;
 use FluidTYPO3\Flux\ViewHelpers\FormViewHelper;
+use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -297,10 +298,11 @@ abstract class AbstractFluxController extends ActionController
     }
 
     /**
-     * @return string
+     * @return ResponseInterface
      */
-    public function renderAction()
+    public function renderAction(): ResponseInterface
     {
+        $response = $this->responseFactory->createResponse()->withHeader('Content-Type', 'text/html; charset=utf-8');
         $row = $this->getRecord();
         $extensionKey = $this->provider->getExtensionKey($row);
         $extensionSignature = ExtensionNamingUtility::getExtensionSignature($extensionKey);
@@ -310,12 +312,14 @@ abstract class AbstractFluxController extends ActionController
         $controllerActionName = $this->provider->getControllerActionFromRecord($row);
         $actualActionName = null !== $requestActionName ? $requestActionName : $controllerActionName;
         $controllerName = $this->request->getControllerName();
-        return $this->performSubRendering(
+        $this->performSubRendering(
             $controllerExtensionKey,
             $controllerName,
             $actualActionName,
-            $pluginSignature
+            $pluginSignature,
+            $response
         );
+        return $response;
     }
 
     /**
@@ -334,9 +338,9 @@ abstract class AbstractFluxController extends ActionController
      * @param string $controllerName
      * @param string $actionName
      * @param string $pluginSignature
-     * @return string
+     * @param ResponseInterface $response
      */
-    protected function performSubRendering($extensionName, $controllerName, $actionName, $pluginSignature)
+    protected function performSubRendering(string $extensionName, string $controllerName, string $actionName, string $pluginSignature, ResponseInterface $response): void
     {
         $shouldRelay = $this->hasSubControllerActionOnForeignController($extensionName, $controllerName, $actionName);
         if (!$shouldRelay) {
@@ -375,18 +379,22 @@ abstract class AbstractFluxController extends ActionController
                 $pluginSignature
             );
         }
-        return HookHandler::trigger(
+
+        $content = HookHandler::trigger(
             HookHandler::CONTROLLER_AFTER_RENDERING,
             [
                 'view' => $this->view,
                 'content' => $content,
                 'request' => $this->request,
-                'response' => $this->response,
+                'response' => $response,
                 'extensionName' => $extensionName,
-                'controllerClassName' => $foreignControllerClass,
+                'controllerClassName' => $foreignControllerClass ?? null,
                 'controllerActionName' => $actionName
             ]
         )['content'];
+
+        $response->getBody()->write($content);
+
     }
 
     /**
