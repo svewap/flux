@@ -193,4 +193,10 @@ if (!defined('TYPO3_MODE')) {
 
         \FluidTYPO3\Flux\Integration\NormalizedData\FlexFormImplementation::registerForTableAndField('tt_content', 'pi_flexform');
     }
+
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['fluxMigratePageRecords']
+        = \FluidTYPO3\Flux\Updates\MigratePageRecords::class;
+    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update']['fluxMigrateContentRecords']
+        = \FluidTYPO3\Flux\Updates\MigrateContentRecords::class;
+
 })();
