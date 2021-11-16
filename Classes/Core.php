@@ -111,7 +111,7 @@ class Core
      */
     public static function registerProviderExtensionKey($extensionKey, $providesControllerName = self::CONTROLLER_ALL)
     {
-        if (strpos($providesControllerName,'Content') !== false && !ExtensionManagementUtility::isLoaded('fluidcontent')) {
+        if ($providesControllerName === 'Content' && !ExtensionManagementUtility::isLoaded('fluidcontent')) {
             // Special temporary case - when fluidcontent is not installed, Flux takes over and registers all
             // detected template files as native CTypes. Remove if/when fluidcontent is discontinued.
             $legacyKey = ExtensionNamingUtility::getExtensionKey($extensionKey);

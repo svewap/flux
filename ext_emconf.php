@@ -4,7 +4,7 @@ $EM_CONF[$_EXTKEY] = array (
   'description' => 'Drop-in page and content templates with nested content feature. Provides multiple condensed integration APIs to use advanced TYPO3 features with little effort.',
   'category' => 'misc',
   'shy' => 0,
-  'version' => '9.4.2',
+  'version' => '9.5.0',
   'dependencies' => 'cms',
   'conflicts' => '',
   'priority' => 'top',
@@ -25,7 +25,7 @@ $EM_CONF[$_EXTKEY] = array (
   array (
     'depends' => 
     array (
-      'typo3' => '8.7.0-11.0.99',
+      'typo3' => '8.7.0-11.2.99',
       'php' => '7.1.0-7.4.99',
     ),
     'conflicts' => 

@@ -253,8 +253,14 @@ class PreviewView extends TemplateView
 
             $pageUid = $row['pid'];
             if ($GLOBALS['BE_USER']->workspace > 0) {
-                $placeholder = BackendUtility::getMovePlaceholder('tt_content', $row['uid'], 'pid', $GLOBALS['BE_USER']->workspace);
-                $pageUid = $placeholder['pid'] ?? $pageUid;
+                $workspaceVersion = BackendUtility::getWorkspaceVersionOfRecord(
+                    $GLOBALS['BE_USER']->workspace,
+                    'tt_content',
+                    $row['uid']
+                );
+                if ($workspaceVersion) {
+                    $pageUid = $workspaceVersion['pid'] ?? $pageUid;
+                }
             }
             $pageLayoutView = $this->getInitializedPageLayoutView($provider, $row);
             if ($pageLayoutView instanceof BackendLayoutRenderer) {
@@ -268,7 +274,6 @@ class PreviewView extends TemplateView
             }
 
             $GLOBALS['TCA']['tt_content']['columns']['colPos']['config']['items'] = $tcaBackup;
-
         }
         return $content;
     }
@@ -388,6 +393,11 @@ class PreviewView extends TemplateView
         foreach ($GLOBALS['TCA']['tt_content']['columns'] as $name => $val) {
             $itemLabels[$name] = ($val['label'] ?? false) ? $this->getLanguageService()->sL($val['label']) : '';
         }
+
+        array_push(
+            $GLOBALS['TCA']['tt_content']['columns']['colPos']['config']['items'],
+            ...$layoutConfiguration['__items']
+        );
 
         $columnsAsCSV = implode(',', $layoutConfiguration['__colPosList'] ?? []);
 

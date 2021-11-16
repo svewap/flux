@@ -22,6 +22,7 @@ use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use TYPO3\CMS\Core\Cache\CacheManager;
 use TYPO3\CMS\Core\Cache\Exception\NoSuchCacheException;
 use TYPO3\CMS\Core\Cache\Frontend\FrontendInterface;
+use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -76,8 +77,7 @@ class ContentTypeBuilder
 
         /** @var Provider $provider */
         $provider = GeneralUtility::makeInstance(ObjectManager::class)->get($providerClassName);
-        if (
-            !$provider instanceof RecordProviderInterface
+        if (!$provider instanceof RecordProviderInterface
             || !$provider instanceof ControllerProviderInterface
             || !$provider instanceof FluidProviderInterface
         ) {
@@ -119,7 +119,17 @@ class ContentTypeBuilder
      */
     protected function configureContentTypeForController($providerExtensionName, $controllerClassName, $controllerAction)
     {
-        $controllerName = substr($controllerClassName, strrpos($controllerClassName, '\\') + 1, -10);
+        if (class_exists(Typo3Version::class)) {
+            $version = GeneralUtility::makeInstance(Typo3Version::class)->getVersion();
+        } else {
+            $version = \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::getExtensionVersion('core');
+        }
+
+        if (version_compare($version, 10.4, '>=')) {
+            $controllerName = $controllerClassName;
+        } else {
+            $controllerName = substr($controllerClassName, strrpos($controllerClassName, '\\') + 1, -10);
+        }
         $emulatedPluginName = ucfirst(strtolower($controllerAction));
 
         // Sanity check: if controller does not implement a custom method matching the template name, default to "render"
@@ -133,8 +143,8 @@ class ContentTypeBuilder
         ExtensionUtility::configurePlugin(
             $providerExtensionName,
             $emulatedPluginName,
-            [$controllerClassName => $controllerAction . ',outlet,error'],
-            [$controllerClassName => 'outlet'],
+            [$controllerName => $controllerAction . ',outlet,error'],
+            [$controllerName => 'outlet'],
             ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
         );
     }
