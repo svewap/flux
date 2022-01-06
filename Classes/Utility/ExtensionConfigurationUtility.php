@@ -30,13 +30,9 @@ class ExtensionConfigurationUtility
         self::OPTION_FLEXFORM_TO_IRRE => false,
     ];
 
-    public static function initialize(?string $extensionConfiguration): void
+    public static function initialize(): void
     {
-        if (class_exists(ExtensionConfiguration::class)) {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['flux']['setup'] = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('flux');
-        } else {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['flux']['setup'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['flux']['setup'] ?? unserialize($extensionConfiguration);
-        }
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['flux']['setup'] = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('flux');
 
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['flux']['hooks'] = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['flux']['hooks'] ?? [];
     }

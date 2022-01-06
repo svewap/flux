@@ -3,7 +3,6 @@ if (!defined('TYPO3_MODE')) {
     die('Access denied.');
 }
 
-(function () use ($_EXTCONF) {
     if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'])) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = array(
             'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
@@ -15,7 +14,7 @@ if (!defined('TYPO3_MODE')) {
         );
     }
 
-    \FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::initialize($_EXTCONF);
+    \FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::initialize();
 
     if (!(TYPO3_REQUESTTYPE & TYPO3_REQUESTTYPE_INSTALL)) {
         // Globally registered fluid namespace
@@ -193,4 +192,4 @@ if (!defined('TYPO3_MODE')) {
 
         \FluidTYPO3\Flux\Integration\NormalizedData\FlexFormImplementation::registerForTableAndField('tt_content', 'pi_flexform');
     }
-})();
+
