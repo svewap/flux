@@ -340,6 +340,7 @@ abstract class AbstractFluxController extends ActionController
     {
         $shouldRelay = $this->hasSubControllerActionOnForeignController($extensionName, $controllerName, $actionName);
         if (!$shouldRelay) {
+            $foreignControllerClass = null;
             if ($this->provider instanceof FluidProviderInterface) {
                 $templatePathAndFilename = $this->provider->getTemplatePathAndFilename($this->getRecord());
                 $vendorLessExtensionName = ExtensionNamingUtility::getExtensionName($extensionName);
@@ -381,7 +382,6 @@ abstract class AbstractFluxController extends ActionController
                 'view' => $this->view,
                 'content' => $content,
                 'request' => $this->request,
-                'response' => $this->response,
                 'extensionName' => $extensionName,
                 'controllerClassName' => $foreignControllerClass,
                 'controllerActionName' => $actionName
