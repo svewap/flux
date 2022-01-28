@@ -99,6 +99,7 @@ class GetViewHelper extends AbstractViewHelper
         );
         $this->registerArgument('loadRegister', 'array', 'List of LOAD_REGISTER variable');
         $this->registerArgument('render', 'boolean', 'Optional returning variable as original table rows', false, true);
+        $this->registerArgument('hideUntranslated', 'boolean', '', false, true);
     }
 
     /**
