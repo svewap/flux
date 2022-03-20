@@ -23,7 +23,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
  * capable of returning the vanilla Flux content type form, but other
  * than that, does not provide any special functionality.
  */
-class RecordBasedContentGridProvider extends AbstractProvider implements GridProviderInterface
+class RecordBasedContentGridProvider extends AbstractProvider
 {
     protected $tableName = 'content_types';
 

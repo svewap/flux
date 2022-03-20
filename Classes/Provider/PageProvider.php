@@ -27,7 +27,7 @@ use TYPO3\CMS\Fluid\View\TemplatePaths;
  * All other page records will be associated
  * with the SubPageProvider instead.
  */
-class PageProvider extends AbstractProvider implements ProviderInterface
+class PageProvider extends AbstractProvider
 {
     const FIELD_NAME_MAIN = 'tx_fed_page_flexform';
     const FIELD_NAME_SUB = 'tx_fed_page_flexform_sub';

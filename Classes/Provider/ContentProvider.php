@@ -12,7 +12,7 @@ namespace FluidTYPO3\Flux\Provider;
  * DEPRECATED - use simply Provider class (and make sure you configure
  * the table and field names!
  */
-class ContentProvider extends AbstractProvider implements ProviderInterface
+class ContentProvider extends AbstractProvider
 {
 
 }
