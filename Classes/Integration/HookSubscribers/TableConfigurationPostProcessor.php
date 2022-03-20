@@ -60,9 +60,13 @@ class TableConfigurationPostProcessor implements TableConfigurationPostProcessin
             }
         }
 
+        try {
+            $this->spoolQueuedContentTypeRegistrations(Core::getQueuedContentTypeRegistrations());
+            Core::clearQueuedContentTypeRegistrations();
+        } catch (\Exception $ex) {
 
-        $this->spoolQueuedContentTypeRegistrations(Core::getQueuedContentTypeRegistrations());
-        Core::clearQueuedContentTypeRegistrations();
+        }
+
     }
 
     /**
