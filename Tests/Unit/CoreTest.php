@@ -66,7 +66,7 @@ class CoreTest extends AbstractTestCase
         /** @var \FluidTYPO3\Flux\Provider\ProviderInterface $provider */
         $provider = $this->objectManager->get('FluidTYPO3\Flux\Provider\Provider');
         Core::registerConfigurationProvider($provider);
-        $registered = Core::getRegisteredFlexFormProviders();
+        $registered = Core::getRegisteredProviders();
         $this->assertContains($provider, $registered);
     }
 
@@ -77,10 +77,10 @@ class CoreTest extends AbstractTestCase
     {
         $providerClassName = 'FluidTYPO3\Flux\Provider\Provider';
         Core::registerConfigurationProvider($providerClassName);
-        $registered = Core::getRegisteredFlexFormProviders();
+        $registered = Core::getRegisteredProviders();
         $this->assertContains($providerClassName, $registered);
         Core::unregisterConfigurationProvider($providerClassName);
-        $registered = Core::getRegisteredFlexFormProviders();
+        $registered = Core::getRegisteredProviders();
         $this->assertNotContains($providerClassName, $registered);
     }
 
@@ -204,7 +204,7 @@ class CoreTest extends AbstractTestCase
         $fakeClass = 'MyFakeClass';
         Core::unregisterConfigurationProvider($fakeClass);
         core::registerConfigurationProvider($fakeClass);
-        $this->assertNotContains($fakeClass, Core::getRegisteredFlexFormProviders());
+        $this->assertNotContains($fakeClass, Core::getRegisteredProviders());
     }
 
     /**

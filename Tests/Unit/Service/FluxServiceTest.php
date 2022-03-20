@@ -31,7 +31,7 @@ class FluxServiceTest extends AbstractTestCase
      */
     public function setup()
     {
-        $providers = Core::getRegisteredFlexFormProviders();
+        $providers = Core::getRegisteredProviders();
         if (true === in_array('FluidTYPO3\Flux\Service\FluxService', $providers)) {
             Core::unregisterConfigurationProvider('FluidTYPO3\Flux\Service\FluxService');
         }

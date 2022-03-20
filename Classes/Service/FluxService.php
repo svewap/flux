@@ -44,11 +44,6 @@ class FluxService implements SingletonInterface
     protected $configurationManager;
 
     /**
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
      * @var ProviderResolver
      */
     protected $providerResolver;
@@ -63,6 +58,11 @@ class FluxService implements SingletonInterface
      */
     protected $resourceFactory;
 
+
+    public function __construct(ProviderResolver $providerResolver) {
+        $this->providerResolver = $providerResolver;
+    }
+
     /**
      * @param ConfigurationManagerInterface $configurationManager
      * @return void
@@ -70,15 +70,6 @@ class FluxService implements SingletonInterface
     public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
     {
         $this->configurationManager = $configurationManager;
-    }
-
-    /**
-     * @param ObjectManagerInterface $objectManager
-     * @return void
-     */
-    public function injectObjectManager(ObjectManagerInterface $objectManager)
-    {
-        $this->objectManager = $objectManager;
     }
 
     /**
@@ -138,7 +129,12 @@ class FluxService implements SingletonInterface
     public function getSettingsForExtensionName($extensionName)
     {
         $signature = ExtensionNamingUtility::getExtensionSignature($extensionName);
-        return (array) $this->getTypoScriptByPath('plugin.tx_' . $signature . '.settings');
+        try {
+            return (array) $this->getTypoScriptByPath('plugin.tx_' . $signature . '.settings');
+        } catch (\Exception $ex) {
+
+        }
+        return [];
     }
 
     /**
@@ -273,12 +269,11 @@ class FluxService implements SingletonInterface
         if (true === empty($valuePointer)) {
             $valuePointer = 'vDEF';
         }
-        $serviceClassName = class_exists(FlexFormService::class) ? FlexFormService::class : \TYPO3\CMS\Extbase\Service\FlexFormService::class;
-        $settings = $this->objectManager->get($serviceClassName)
+        $settings = GeneralUtility::makeInstance(FlexFormService::class)
             ->convertFlexFormContentToArray($flexFormContent, $languagePointer, $valuePointer);
         if (null !== $form && $form->getOption(Form::OPTION_TRANSFORM)) {
             /** @var FormDataTransformer $transformer */
-            $transformer = $this->objectManager->get(FormDataTransformer::class);
+            $transformer = GeneralUtility::makeInstance(FormDataTransformer::class);
             $settings = $transformer->transformAccordingToConfiguration($settings, $form);
         }
         return $settings;
@@ -333,8 +328,7 @@ class FluxService implements SingletonInterface
         if (true === ctype_digit($filename)) {
             return $this->resourceFactory->getFileObjectFromCombinedIdentifier($reference);
         }
-        $reference = GeneralUtility::getFileAbsFileName($reference);
-        return $reference;
+        return GeneralUtility::getFileAbsFileName($reference);
     }
 
     /**
@@ -415,8 +409,7 @@ class FluxService implements SingletonInterface
      */
     public function resolvePageProvider($row)
     {
-        $provider = $this->resolvePrimaryConfigurationProvider('pages', PageProvider::FIELD_NAME_MAIN, $row);
-        return $provider;
+        return $this->resolvePrimaryConfigurationProvider('pages', PageProvider::FIELD_NAME_MAIN, $row);
     }
 
     /**

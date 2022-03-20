@@ -145,21 +145,10 @@ class AbstractProvider implements ProviderInterface
      */
     protected $recordService;
 
-    /**
-     * @param FluxService $configurationService
-     * @return void
-     */
-    public function injectConfigurationService(FluxService $configurationService)
+
+    public function __construct(FluxService $configurationService, WorkspacesAwareRecordService $recordService )
     {
         $this->configurationService = $configurationService;
-    }
-
-    /**
-     * @param WorkspacesAwareRecordService $recordService
-     * @return void
-     */
-    public function injectRecordService(WorkspacesAwareRecordService $recordService)
-    {
         $this->recordService = $recordService;
     }
 

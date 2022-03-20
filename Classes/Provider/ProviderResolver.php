@@ -202,8 +202,8 @@ class ProviderResolver implements SingletonInterface
     /**
      * @return array
      */
-    protected function loadCoreRegisteredProviders()
+    public function loadCoreRegisteredProviders()
     {
-        return Core::getRegisteredFlexFormProviders();
+        return Core::getRegisteredProviders();
     }
 }

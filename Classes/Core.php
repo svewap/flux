@@ -249,10 +249,8 @@ class Core
         $paths = null,
         $fieldName = 'pi_flexform'
     ) {
-        /** @var $objectManager ObjectManagerInterface */
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         /** @var $provider ProviderInterface */
-        $provider = $objectManager->get(Provider::class);
+        $provider = GeneralUtility::makeInstance(Provider::class);
         $provider->setTableName('tt_content');
         $provider->setFieldName($fieldName);
         $provider->setExtensionKey($extensionKey);
@@ -286,10 +284,8 @@ class Core
         $section = null,
         $paths = null
     ) {
-        /** @var $objectManager ObjectManagerInterface */
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         /** @var $provider ProviderInterface */
-        $provider = $objectManager->get(Provider::class);
+        $provider = GeneralUtility::makeInstance(Provider::class);
         $provider->setTableName($table);
         $provider->setFieldName($fieldName);
         $provider->setTemplatePathAndFilename($templateFilename);
@@ -392,10 +388,9 @@ class Core
     }
 
     /**
-     * Gets the defined FlexForms configuration providers based on parameters
      * @return ProviderInterface[]
      */
-    public static function getRegisteredFlexFormProviders()
+    public static function getRegisteredProviders()
     {
         reset(static::$providers);
         return static::$providers;

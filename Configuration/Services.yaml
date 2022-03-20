@@ -5,3 +5,14 @@ services:
         identifier: 'flux-after-localization-controller-columns'
         method: 'modifyColumnsManifest'
         event: TYPO3\CMS\Backend\Controller\Event\AfterPageColumnsSelectedForLocalizationEvent
+
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  FluidTYPO3\Flux\:
+    resource: '../Classes/*'
+
+  FluidTYPO3\Flux\Provider\AbstractProvider:
+    public: true
