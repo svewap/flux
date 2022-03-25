@@ -218,7 +218,7 @@ class ContentTypeBuilder
             return $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType];
         }
         $icon = MiscellaneousUtility::getIconForTemplate($form);
-        if (strpos($icon, 'EXT:') === 0 || ($icon[0] ?? null) !== '/') {
+        if ($icon !== null && (strpos($icon, 'EXT:') === 0 || ($icon[0] ?? null) !== '/')) {
             $icon = GeneralUtility::getFileAbsFileName($icon);
         }
         if (!$icon) {

@@ -315,9 +315,13 @@ abstract class AbstractFormComponent implements FormInterface
         $name = $this->getName();
         $extensionName = $this->extensionName;
         $extensionKey = ExtensionNamingUtility::getExtensionKey($extensionName);
+        if ($label === null) {
+            return null;
+        }
         if (empty($label) && !ExtensionManagementUtility::isLoaded($extensionKey)) {
             return $name;
-        } elseif (strpos($label, 'LLL:EXT:') === 0) {
+        }
+        if (strpos($label, 'LLL:EXT:') === 0) {
             return $label;
         }
 
@@ -328,7 +332,8 @@ abstract class AbstractFormComponent implements FormInterface
             // Shorthand LLL:name.of.index reference, expand
             list (, $labelIdentifier) = explode(':', $label, 2);
             return $filePrefix . ':' . $labelIdentifier;
-        } elseif (!empty($label)) {
+        }
+        if (!empty($label)) {
             return $label;
         }
         if ($this instanceof Form) {

@@ -284,7 +284,7 @@ class AbstractProvider implements ProviderInterface
     protected function createCustomFormInstance(array $row)
     {
         $formClassName = $this->resolveFormClassName($row);
-        if (class_exists($formClassName)) {
+        if ($formClassName !== null && class_exists($formClassName)) {
             return $formClassName::create(['row']);
         }
         return null;

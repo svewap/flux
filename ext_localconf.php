@@ -4,14 +4,14 @@ if (!defined('TYPO3_MODE')) {
 }
 
 if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] ?? null)) {
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = array(
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = [
         'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
         'backend' => \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::class,
-        'groups' => array('system'),
+        'groups' => ['system'],
         'options' => [
             'defaultLifetime' => 2592000,
         ],
-    );
+    ];
 }
 
 \FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::initialize();
