@@ -10,7 +10,6 @@ namespace FluidTYPO3\Flux\Controller;
 
 use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Service\PageService;
-use TYPO3\CMS\Extbase\Mvc\Web\Response;
 
 /**
  * Page Controller
@@ -40,10 +39,6 @@ class PageController extends AbstractFluxController implements PageControllerInt
      */
     protected $pageConfigurationService;
 
-    /**
-     * @var Response
-     */
-    protected $response;
 
     /**
      * @param PageService $pageService

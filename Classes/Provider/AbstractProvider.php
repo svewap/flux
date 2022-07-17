@@ -21,6 +21,7 @@ use FluidTYPO3\Flux\ViewHelpers\FormViewHelper;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
 use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
@@ -145,10 +146,21 @@ class AbstractProvider implements ProviderInterface
      */
     protected $recordService;
 
-
-    public function __construct(FluxService $configurationService, WorkspacesAwareRecordService $recordService )
+    /**
+     * @param FluxService $configurationService
+     * @return void
+     */
+    public function injectConfigurationService(FluxService $configurationService)
     {
         $this->configurationService = $configurationService;
+    }
+
+    /**
+     * @param WorkspacesAwareRecordService $recordService
+     * @return void
+     */
+    public function injectRecordService(WorkspacesAwareRecordService $recordService)
+    {
         $this->recordService = $recordService;
     }
 
@@ -762,19 +774,9 @@ class AbstractProvider implements ProviderInterface
      */
     public function postProcessDataStructure(array &$row, &$dataStructure, array $conf)
     {
-        $defaultDataStructure = ['sheets' => ['sDEF' => ['ROOT' => ['type' => 'array', 'el' => ['xmlTitle' => ['TCEforms' => ['label' => 'The Title:', 'config' => ['type' => 'input', 'size' => '48']]]]]]]];
         $form = $this->getForm($row);
         if (null !== $form) {
-            $newDataStructure = $form->build();
-            if ($dataStructure === $defaultDataStructure) {
-                $dataStructure = $newDataStructure;
-            } elseif (count($form->getFields()) > 0) {
-                if ($newDataStructure !== ['meta' => ['langDisable' => 1, 'langChildren' => 0], 'ROOT' => ['type' => 'array', 'el' => []]]) {
-                    $dataStructure = array_replace_recursive($dataStructure, $newDataStructure);
-                } else {
-                    $dataStructure = $newDataStructure;
-                }
-            }
+            $dataStructure = array_replace_recursive($dataStructure, $form->build());
         }
     }
 

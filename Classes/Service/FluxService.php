@@ -44,6 +44,11 @@ class FluxService implements SingletonInterface
     protected $configurationManager;
 
     /**
+     * @var ObjectManagerInterface
+     */
+    protected $objectManager;
+
+    /**
      * @var ProviderResolver
      */
     protected $providerResolver;
@@ -58,11 +63,6 @@ class FluxService implements SingletonInterface
      */
     protected $resourceFactory;
 
-
-    public function __construct(ProviderResolver $providerResolver) {
-        $this->providerResolver = $providerResolver;
-    }
-
     /**
      * @param ConfigurationManagerInterface $configurationManager
      * @return void
@@ -70,6 +70,15 @@ class FluxService implements SingletonInterface
     public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager)
     {
         $this->configurationManager = $configurationManager;
+    }
+
+    /**
+     * @param ObjectManagerInterface $objectManager
+     * @return void
+     */
+    public function injectObjectManager(ObjectManagerInterface $objectManager)
+    {
+        $this->objectManager = $objectManager;
     }
 
     /**
@@ -269,11 +278,12 @@ class FluxService implements SingletonInterface
         if (true === empty($valuePointer)) {
             $valuePointer = 'vDEF';
         }
-        $settings = GeneralUtility::makeInstance(FlexFormService::class)
+        $serviceClassName = class_exists(FlexFormService::class) ? FlexFormService::class : \TYPO3\CMS\Extbase\Service\FlexFormService::class;
+        $settings = $this->objectManager->get($serviceClassName)
             ->convertFlexFormContentToArray($flexFormContent, $languagePointer, $valuePointer);
         if (null !== $form && $form->getOption(Form::OPTION_TRANSFORM)) {
             /** @var FormDataTransformer $transformer */
-            $transformer = GeneralUtility::makeInstance(FormDataTransformer::class);
+            $transformer = $this->objectManager->get(FormDataTransformer::class);
             $settings = $transformer->transformAccordingToConfiguration($settings, $form);
         }
         return $settings;

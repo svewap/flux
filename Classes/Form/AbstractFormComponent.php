@@ -317,20 +317,18 @@ abstract class AbstractFormComponent implements FormInterface
         $extensionKey = ExtensionNamingUtility::getExtensionKey($extensionName);
         if (empty($label) && !ExtensionManagementUtility::isLoaded($extensionKey)) {
             return $name;
-        }
-        if (strpos($label, 'LLL:EXT:') === 0) {
+        } elseif (strpos($label ?? '', 'LLL:EXT:') === 0) {
             return $label;
         }
 
         $relativeFilePath = $this->getLocalLanguageFileRelativePath();
         $relativeFilePath = ltrim($relativeFilePath, '/');
         $filePrefix = 'LLL:EXT:' . $extensionKey . '/' . $relativeFilePath;
-        if (strpos($label, 'LLL:') === 0) {
+        if (strpos($label ?? '', 'LLL:') === 0) {
             // Shorthand LLL:name.of.index reference, expand
             list (, $labelIdentifier) = explode(':', $label, 2);
             return $filePrefix . ':' . $labelIdentifier;
-        }
-        if (!empty($label)) {
+        } elseif (!empty($label)) {
             return $label;
         }
         if ($this instanceof Form) {

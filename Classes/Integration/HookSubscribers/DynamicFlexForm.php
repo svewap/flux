@@ -26,7 +26,6 @@ use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
  */
 class DynamicFlexForm extends FlexFormTools
 {
-
     /**
      * @var ObjectManagerInterface
      */
@@ -166,7 +165,7 @@ class DynamicFlexForm extends FlexFormTools
             $record = BackendUtility::getRecord($identifier['tableName'], $record['uid'], '*', '', false);
         }
         $fieldName = $identifier['fieldName'];
-        $dataStructArray = $dataStructureArray = $this->parseDataStructureByIdentifier($identifier['originalIdentifier']);
+        $dataStructArray = [];
         $provider = $this->configurationService->resolvePrimaryConfigurationProvider(
             $identifier['tableName'],
             $fieldName,

@@ -191,7 +191,7 @@ class ContentTypeBuilder
                 // errors use the most base Exception class in PHP. So instead we check for a
                 // specific dispatcher in the stack trace and re-throw if not matched.
                 $pitcher = $error->getTrace()[0] ?? false;
-                if ($pitcher && ($pitcher['class'] ?? null) !== 'SplObjectStorage' && ($pitcher['function'] ?? null) !== 'serialize') {
+                if ($pitcher && $pitcher['class'] !== 'SplObjectStorage' && $pitcher['function'] !== 'serialize') {
                     throw $error;
                 }
             }
@@ -218,8 +218,10 @@ class ContentTypeBuilder
             return $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType];
         }
         $icon = MiscellaneousUtility::getIconForTemplate($form);
-        if ($icon !== null && (strpos($icon, 'EXT:') === 0 || ($icon[0] ?? null) !== '/')) {
-            $icon = GeneralUtility::getFileAbsFileName($icon);
+        if ($icon !== null) {
+            if (strpos($icon, 'EXT:') === 0 || $icon[0] !== '/') {
+                $icon = GeneralUtility::getFileAbsFileName($icon);
+            }
         }
         if (!$icon) {
             $icon = ExtensionManagementUtility::extPath('flux', 'Resources/Public/Icons/Extension.svg');

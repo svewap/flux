@@ -18,6 +18,7 @@ use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\Database\TableConfigurationPostProcessingHookInterface;
 use TYPO3\CMS\Core\TypoScript\TemplateService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 use TYPO3Fluid\Fluid\Exception;
 
 /**
@@ -60,13 +61,9 @@ class TableConfigurationPostProcessor implements TableConfigurationPostProcessin
             }
         }
 
-        try {
-            $this->spoolQueuedContentTypeRegistrations(Core::getQueuedContentTypeRegistrations());
-            Core::clearQueuedContentTypeRegistrations();
-        } catch (\Exception $ex) {
 
-        }
-
+        $this->spoolQueuedContentTypeRegistrations(Core::getQueuedContentTypeRegistrations());
+        Core::clearQueuedContentTypeRegistrations();
     }
 
     /**
@@ -107,8 +104,7 @@ class TableConfigurationPostProcessor implements TableConfigurationPostProcessin
         $contentTypeBuilder = GeneralUtility::makeInstance(ContentTypeBuilder::class);
         foreach ($queue as $queuedRegistration) {
             /** @var ProviderInterface $provider */
-            $queuedRegistration[5] = $queuedRegistration[5] ?? null;
-            list ($providerExtensionName, $templateFilename, $providerClassName, $contentType, $pluginName, $controllerActionName) = $queuedRegistration;
+            [$providerExtensionName, $templateFilename, $providerClassName, $contentType, $pluginName, $controllerActionName] = $queuedRegistration;
             try {
                 $contentType = $contentType ?: static::determineContentType($providerExtensionName, $templateFilename);
                 $defaultControllerExtensionName = 'FluidTYPO3.Flux';
@@ -123,7 +119,8 @@ class TableConfigurationPostProcessor implements TableConfigurationPostProcessin
 
                 Core::registerConfigurationProvider($provider);
 
-                $pluginName = $pluginName ?: GeneralUtility::underscoredToUpperCamelCase(end(explode('_', $contentType, 2)));
+                $splitContentType = explode('_', $contentType, 2);
+                $pluginName = $pluginName ?: GeneralUtility::underscoredToUpperCamelCase(end($splitContentType));
                 $contentTypeBuilder->registerContentType($providerExtensionName, $contentType, $provider, $pluginName);
             } catch (Exception $error) {
                 if (!ContextUtility::getApplicationContext()->isProduction()) {

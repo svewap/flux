@@ -325,7 +325,8 @@ class Core
             $templateFilename,
             $providerClassName,
             $contentTypeName,
-            $pluginName
+            $pluginName,
+            null
         ];
     }
 
@@ -388,6 +389,7 @@ class Core
     }
 
     /**
+     * Gets the defined FlexForms configuration providers based on parameters
      * @return ProviderInterface[]
      */
     public static function getRegisteredProviders()

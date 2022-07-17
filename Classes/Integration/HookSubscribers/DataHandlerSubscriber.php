@@ -30,9 +30,6 @@ class DataHandlerSubscriber
 
     public function clearCacheCommand($command)
     {
-        if (!isset($command['cacheCmd'])) {
-            return;
-        }
         if ($command['cacheCmd'] === 'all' || $command['cacheCmd'] === 'system') {
             GeneralUtility::makeInstance(ContentTypeManager::class)->regenerate();
         }
@@ -166,7 +163,9 @@ class DataHandlerSubscriber
         list (, $childRecords) = $this->getParentAndRecordsNestedInGrid(
             $table,
             (int)$id,
-            'uid, pid'
+            'uid, pid',
+            false,
+            $command
         );
 
         if (empty($childRecords)) {
@@ -288,7 +287,9 @@ class DataHandlerSubscriber
         list ($originalRecord, $recordsToProcess) = $this->getParentAndRecordsNestedInGrid(
             $table,
             $id,
-            'uid, pid, colPos'
+            'uid, pid, colPos',
+            false,
+            $command
         );
 
         if (empty($recordsToProcess)) {
@@ -354,6 +355,15 @@ class DataHandlerSubscriber
         return $dataMap;
     }
 
+    protected function getSingleRecordWithRestrictions(string $table, int $uid, string $fieldsToSelect): ?array
+    {
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
+        $queryBuilder->select(...GeneralUtility::trimExplode(',', $fieldsToSelect))
+            ->from($table)
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)));
+        return $queryBuilder->execute()->fetch() ?: null;
+    }
+
     protected function getSingleRecordWithoutRestrictions(string $table, int $uid, string $fieldsToSelect): ?array
     {
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
@@ -395,11 +405,15 @@ class DataHandlerSubscriber
         return $queryBuilder->execute()->fetch() ?: null;
     }
 
-    protected function getParentAndRecordsNestedInGrid(string $table, int $parentUid, string $fieldsToSelect, bool $respectPid = false)
+    protected function getParentAndRecordsNestedInGrid(string $table, int $parentUid, string $fieldsToSelect, bool $respectPid = false, ?string $command = null)
     {
         // A Provider must be resolved which implements the GridProviderInterface
         $resolver = GeneralUtility::makeInstance(ObjectManager::class)->get(ProviderResolver::class);
-        $originalRecord = $this->getSingleRecordWithoutRestrictions($table, $parentUid, '*');
+        if ($command === 'undelete') {
+            $originalRecord = $this->getSingleRecordWithoutRestrictions($table, $parentUid, '*');
+        } else {
+            $originalRecord = $this->getSingleRecordWithRestrictions($table, $parentUid, '*');
+        }
         $primaryProvider = $resolver->resolvePrimaryConfigurationProvider(
             $table,
             null,
@@ -428,7 +442,9 @@ class DataHandlerSubscriber
         $languageField = $GLOBALS['TCA'][$table]['ctrl']['languageField'];
 
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($table);
-        $queryBuilder->getRestrictions()->removeAll();
+        if ($command === 'undelete') {
+            $queryBuilder->getRestrictions()->removeAll();
+        }
 
         $query = $queryBuilder->select(...GeneralUtility::trimExplode(',', $fieldsToSelect))
             ->from($table)
