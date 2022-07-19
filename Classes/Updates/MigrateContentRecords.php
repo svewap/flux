@@ -74,6 +74,15 @@ class MigrateContentRecords implements UpgradeWizardInterface, ConfirmableInterf
      */
     public function updateNecessary(): bool
     {
+
+        $schemaManager = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('tt_content')->getSchemaManager();
+        if ($schemaManager) {
+            $columns = $schemaManager->listTableColumns('tt_content');
+            if (!array_key_exists('tx_flux_column',$columns)) return false;
+            if (!array_key_exists('tx_flux_parent',$columns)) return false;
+        }
+
+
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
         $queryBuilder->getRestrictions()->removeByType(HiddenRestriction::class);
         $queryBuilder->getRestrictions()->removeByType(StartTimeRestriction::class);
