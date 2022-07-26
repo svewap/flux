@@ -129,7 +129,7 @@ class GetViewHelper extends AbstractViewHelper
         $templateVariableContainer = $renderingContext->getVariableProvider();
         $record = (array) $renderingContext->getViewHelperVariableContainer()->get(FormViewHelper::class, 'record');
 
-        if ($GLOBALS['BE_USER']->workspace) {
+        if (isset($GLOBALS['BE_USER']->workspace)) {
             $placeholder = BackendUtility::getMovePlaceholder('tt_content', $record['uid']);
             if ($placeholder) {
                 // Use the move placeholder if one exists, ensuring that "pid" and "tx_flux_parent" values are taken
