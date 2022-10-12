@@ -22,7 +22,7 @@ class ExtensionNamingUtility
      */
     public static function hasVendorName($qualifiedExtensionName)
     {
-        return false !== strpos($qualifiedExtensionName, '.');
+        return str_contains($qualifiedExtensionName, '.');
     }
 
     /**
@@ -31,7 +31,7 @@ class ExtensionNamingUtility
      */
     public static function getVendorName($qualifiedExtensionName)
     {
-        list($vendorName, ) = static::getVendorNameAndExtensionKey($qualifiedExtensionName);
+        [$vendorName,] = static::getVendorNameAndExtensionKey($qualifiedExtensionName);
         return $vendorName;
     }
 
@@ -41,7 +41,7 @@ class ExtensionNamingUtility
      */
     public static function getExtensionKey($qualifiedExtensionName)
     {
-        list(, $extensionKey) = static::getVendorNameAndExtensionKey($qualifiedExtensionName);
+        [, $extensionKey] = static::getVendorNameAndExtensionKey($qualifiedExtensionName);
         return $extensionKey;
     }
 
@@ -51,7 +51,7 @@ class ExtensionNamingUtility
      */
     public static function getExtensionName($qualifiedExtensionName)
     {
-        list(, $extensionName) = static::getVendorNameAndExtensionName($qualifiedExtensionName);
+        [, $extensionName] = static::getVendorNameAndExtensionName($qualifiedExtensionName);
         return $extensionName;
     }
 
