@@ -133,7 +133,7 @@ class DataHandlerSubscriber
                 if ($primaryConfigurationProvider && is_array($fieldArray[$fieldName]) && array_key_exists('data', $fieldArray[$fieldName])) {
                     foreach ($fieldArray[$fieldName]['data'] as $sheet) {
                         foreach ($sheet['lDEF'] as $key => $value) {
-                            list ($possibleTableName, $columnName) = explode('.', $key, 2);
+                            [$possibleTableName, $columnName] = array_pad(explode('.', $key, 2), 2, null);
                             if ($possibleTableName === $table && isset($GLOBALS['TCA'][$table]['columns'][$columnName])) {
                                 $fieldArray[$columnName] = $value['vDEF'];
                             }
@@ -422,7 +422,7 @@ class DataHandlerSubscriber
             GridProviderInterface::class
         );
 
-        if (!$primaryProvider) {
+        if (!$primaryProvider || $originalRecord === null) {
             return [
                 $originalRecord,
                 []
