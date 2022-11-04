@@ -1,0 +1,9 @@
+.idea
+vendor
+build
+src
+composer.lock
+/index.php
+/typo3
+/typo3_src
+/public

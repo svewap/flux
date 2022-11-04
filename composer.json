@@ -1,0 +1,46 @@
+{
+    "name": "fluidtypo3/flux",
+    "description": "The flux package from FluidTYPO3",
+    "type": "typo3-cms-extension",
+    "homepage": "http://fluidtypo3.org",
+    "license": "GPL-2.0+",
+    "prefer-stable": true,
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://github.com/FluidTYPO3/flux/issues"
+    },
+    "autoload": {
+        "psr-4": {
+            "FluidTYPO3\\Flux\\": "Classes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FluidTYPO3\\Flux\\Tests\\": "Tests/"
+        }
+    },
+    "suggest": {
+        "fluidtypo3/vhs": "ViewHelper library for Fluid templates."
+    },
+    "require": {
+        "php": "^7.4.0 || ^8",
+        "ext-json": "*",
+        "typo3/cms-core": "^8.7 || ^9 || ^10 || ^11 || dev-master",
+        "typo3/cms-fluid": "^8.7 || ^9 || ^10 || ^11 || dev-master",
+        "typo3/cms-backend": "^8.7 || ^9 || ^10 || ^11 || dev-master",
+        "typo3/cms-frontend": "^8.7 || ^9 || ^10 || ^11 || dev-master",
+        "typo3/cms-recordlist": "^8.7 || ^9 || ^10 || ^11 || dev-master"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "flux"
+        }
+    },
+    "replace": {
+        "typo3-ter/flux": "self.version"
+    },
+    "require-dev": {
+        "fluidtypo3/development": "^4"
+    },
+    "non-feature-branches": ["development", "staging"]
+}

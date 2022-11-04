@@ -1,0 +1,26 @@
+# cat=basic/__default; type=options[0,1,2]; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.debugMode
+debugMode = 0
+
+# cat=basic/__default; type=input; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.doktypes
+doktypes = 0,1,4
+
+# cat=basic/enable; type=boolean; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.handleErrors
+handleErrors = 0
+
+# cat=basic/enable; type=boolean; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.autoload
+autoload = 1
+
+# cat=basic/enable; type=boolean; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.plugAndPlay
+plugAndPlay = 0
+
+# cat=basic/__default; type=input; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.plugAndPlayDirectory
+plugAndPlayDirectory = design
+
+# cat=basic/enable; type=boolean; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.pageIntegration
+pageIntegration = 1
+
+# cat=basic/enable; type=boolean; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.pagesLanguageConfigurationOverlay
+pagesLanguageConfigurationOverlay = 0
+
+# cat=basic/enable; type=boolean; label=LLL:EXT:flux/Resources/Private/Language/locallang.xlf:extension_configuration.flexFormToIrre
+flexFormToIrre = 0
