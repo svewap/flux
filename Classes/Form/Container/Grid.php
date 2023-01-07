@@ -153,7 +153,7 @@ class Grid extends AbstractFormContainer
             $typoScriptString .= $name . ' = ' . $value . LF;
         }
         return new BackendLayout(
-            $this->getRoot()->getName(),
+            $this->getRoot()->getName() ?? 'Grid',
             LocalizationUtility::translate($label)
                 ? $label
                 : 'LLL:EXT:flux/Resources/Private/Language/locallang.xlf:flux.grid.grids.grid',
