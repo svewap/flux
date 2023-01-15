@@ -65,3 +65,8 @@ services:
         identifier: 'flux-beforeFlexFormDataStructureParsedEvent'
         method: 'applyFluxFlexFormDataStructure'
         event: TYPO3\CMS\Core\Configuration\Event\BeforeFlexFormDataStructureParsedEvent
+  FluidTYPO3\Flux\Integration\Event\IsContentUsedOnPageLayoutEventListener:
+    tags:
+      - name: event.listener
+        identifier: 'flux-IsContentUsedOnPageLayoutEvent'
+        event: TYPO3\CMS\Backend\View\Event\IsContentUsedOnPageLayoutEvent
