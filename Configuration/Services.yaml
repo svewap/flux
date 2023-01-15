@@ -4,14 +4,30 @@ services:
     autoconfigure: true
     public: false
 
-  FluidTYPO3\Flux\:
-    resource: '../Classes/*'
+  #FluidTYPO3\Flux\:
+  #  resource: '../Classes/*'
+
+  FluidTYPO3\Flux\ViewHelpers\:
+    resource: '../Classes/ViewHelpers/*'
+
+  FluidTYPO3\Flux\Service\:
+    resource: '../Classes/Service/*'
+
+  #FluidTYPO3\Flux\ViewHelpers\FormViewHelper:
+  #  public: true
+
+  FluidTYPO3\Flux\Controller\ContentController:
+    public: true
 
   FluidTYPO3\Flux\Integration\BackendLayoutRenderer:
     public: true
     autowire: false
   TYPO3\CMS\Backend\View\BackendViewFactory:
     public: true
+
+  FluidTYPO3\Flux\Integration\Overrides\BackendLayoutView:
+    arguments:
+      $typoScriptCache: '@cache.typoscript'
 
   FluidTYPO3\Flux\Integration\Event\PageContentPreviewRenderingEventListener:
     tags:
