@@ -10,17 +10,11 @@ namespace FluidTYPO3\Flux\Utility;
  */
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
-use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
-use TYPO3\CMS\Extbase\Service\EnvironmentService;
-use TYPO3\CMS\Extbase\Service\ExtensionService;
-use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
+use TYPO3Fluid\Fluid\View\TemplatePaths;
 
 class RenderingContextBuilder
 {
@@ -44,19 +38,10 @@ class RenderingContextBuilder
             'void'
         );
 
-        if (method_exists($renderingContext, 'setControllerContext')) {
-            /** @var ControllerContext $controllerContext */
-            $controllerContext = $this->buildControllerContext($request);
-            try {
-                $renderingContext->setControllerContext($controllerContext);
-            } catch (\TypeError $error) {
-                throw new \UnexpectedValueException(
-                    'Controller class ' . $request->getControllerObjectName() . ' caused error: ' . $error->getMessage()
-                );
-            }
-        } elseif (method_exists($renderingContext, 'setRequest')) {
-            $renderingContext->setRequest($request);
-        }
+
+        $renderingContext->setRequest($request);
+        $renderingContext->setTemplatePaths(new TemplatePaths($extensionKey));
+
 
         $templatePaths = $renderingContext->getTemplatePaths();
         $templatePaths->fillDefaultsByPackageName($extensionKey);
@@ -78,49 +63,10 @@ class RenderingContextBuilder
      */
     private function createRenderingContextInstance(): RenderingContextInterface
     {
-        if (class_exists(RenderingContextFactory::class)) {
-            /** @var RenderingContextFactory $renderingContextFactory */
-            $renderingContextFactory = GeneralUtility::makeInstance(RenderingContextFactory::class);
-            /** @var RenderingContext $renderingContext */
-            $renderingContext = $renderingContextFactory->create();
-        } else {
-            /** @var RenderingContext $renderingContext */
-            $renderingContext = GeneralUtility::makeInstance(RenderingContext::class);
-        }
-        return $renderingContext;
+        /** @var RenderingContextFactory $renderingContextFactory */
+        $renderingContextFactory = GeneralUtility::makeInstance(RenderingContextFactory::class);
+        return $renderingContextFactory->create();
     }
 
-    private function buildControllerContext(RequestInterface $request): ?ControllerContext
-    {
-        /** @var RequestInterface&Request $request */
-        if (class_exists(ControllerContext::class)) {
-            /** @var UriBuilder $uriBuilder */
-            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-            $uriBuilder->setRequest($request);
-            if (method_exists($uriBuilder, 'injectEnvironmentService') && class_exists(EnvironmentService::class)) {
-                /** @var EnvironmentService $environmentService */
-                $environmentService = GeneralUtility::makeInstance(EnvironmentService::class);
-                $uriBuilder->injectEnvironmentService($environmentService);
-            }
-            if (method_exists($uriBuilder, 'injectExtensionService')) {
-                /** @var ExtensionService $extensionService */
-                $extensionService = GeneralUtility::makeInstance(ExtensionService::class);
-                $uriBuilder->injectExtensionService($extensionService);
-            }
-            if (method_exists($uriBuilder, 'injectConfigurationManager')) {
-                /** @var ConfigurationManagerInterface $configurationManager */
-                $configurationManager = GeneralUtility::makeInstance(ConfigurationManager::class);
-                $uriBuilder->injectConfigurationManager($configurationManager);
-            }
 
-            $uriBuilder->initializeObject();
-
-            /** @var ControllerContext $controllerContext */
-            $controllerContext = GeneralUtility::makeInstance(ControllerContext::class);
-            $controllerContext->setRequest($request);
-            $controllerContext->setUriBuilder($uriBuilder);
-        }
-
-        return $controllerContext ?? null;
-    }
 }
