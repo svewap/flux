@@ -25,10 +25,6 @@ services:
   TYPO3\CMS\Backend\View\BackendViewFactory:
     public: true
 
-  FluidTYPO3\Flux\Integration\Overrides\BackendLayoutView:
-    arguments:
-      $typoScriptCache: '@cache.typoscript'
-
   FluidTYPO3\Flux\Integration\Event\PageContentPreviewRenderingEventListener:
     tags:
       - name: event.listener
