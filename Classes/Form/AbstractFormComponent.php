@@ -314,6 +314,9 @@ abstract class AbstractFormComponent implements FormInterface
 
         $name = $this->getName();
         $extensionName = $this->extensionName;
+        if ($extensionName === null) {
+            return $label;
+        }
         $extensionKey = ExtensionNamingUtility::getExtensionKey($extensionName);
         if (empty($label) && !ExtensionManagementUtility::isLoaded($extensionKey)) {
             return $name;
