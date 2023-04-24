@@ -103,9 +103,9 @@ class Grid extends AbstractFormContainer implements ContainerInterface
                 $columns[$key] = $column;
                 $colPosList[$colPos] = $colPos;
                 $items[] = [
-                    $columns[$key]['name'],
-                    $colPos,
-                    $column['icon']
+                    'label' => $columns[$key]['name'],
+                    'value' => $colPos,
+                    'icon' => $column['icon']
                 ];
                 $colCount += $column['colspan'] ? $column['colspan'] : 1;
                 $backendLayout['usedColumns'][$colPos] = $column['name'];

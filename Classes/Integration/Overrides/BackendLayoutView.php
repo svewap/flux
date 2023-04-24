@@ -129,8 +129,8 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
                         $items,
                         [
                             [
-                                $label,
-                                '--div--'
+                                'label' => $label,
+                                'value' => '--div--'
                             ]
                         ],
                         $provider->getGrid($parentRecord)->buildExtendedBackendLayoutArray($parentRecordUid)['__items']
