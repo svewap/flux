@@ -19,6 +19,7 @@ use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
+use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Exception;
 
@@ -117,9 +118,13 @@ class SpooledConfigurationApplicator
         // injects ConfigurationManager will contain a BackendConfigurationManager even in frontend context.
         // This results in various issues such as inability to correctly resolve the correct controller for an Extbase
         // plugin on requests that don't already have a cached version of Flux forms / contains dynamic Flux forms.
+
+        $phpself = $GLOBALS['_SERVER']['PHP_SELF'] ?? '';
+        $isBackend = str_starts_with($phpself,'/typo3/');
+
         $GLOBALS['TYPO3_REQUEST'] = $GLOBALS['TYPO3_REQUEST'] ?? (new ServerRequest())->withAttribute(
             'applicationType',
-            defined('TYPO3_REQUESTTYPE') ? constant('TYPO3_REQUESTTYPE') : SystemEnvironmentBuilder::REQUESTTYPE_BE
+            $isBackend ? SystemEnvironmentBuilder::REQUESTTYPE_BE : SystemEnvironmentBuilder::REQUESTTYPE_FE
         );
 
         uasort(
