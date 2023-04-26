@@ -62,8 +62,8 @@ class ContentTypeBuilder
             // Determine which plugin name and controller action to emulate with this CType, base on file name.
             $controllerActionName = lcfirst(pathinfo($templateFilename, PATHINFO_FILENAME));
             if ($contentType) {
-                $pluginNamePart = $this->getPluginNamePartFromContentType($contentType);
-                if (strtolower($pluginNamePart) !== strtolower($controllerActionName)) {
+                $pluginNamePart = $this->getPluginNamePartFromContentType($contentType) ?? $contentType;
+                if ($pluginNamePart !== null && strtolower($pluginNamePart) !== strtolower($controllerActionName)) {
                     $controllerActionName = lcfirst($pluginNamePart);
                 }
             }
@@ -85,7 +85,12 @@ class ContentTypeBuilder
         if (!$this->validateContentController($localControllerClassName)) {
             class_alias($controllerClassName, $localControllerClassName);
         }
-        $this->configureContentTypeForController($providerExtensionName, $controllerClassName, $controllerActionName);
+        $this->configureContentTypeForController(
+            $providerExtensionName,
+            $controllerClassName,
+            $controllerActionName,
+            $contentType
+        );
 
         /** @var BasicProviderInterface $provider */
         $provider = GeneralUtility::makeInstance($providerClassName);
@@ -137,10 +142,12 @@ class ContentTypeBuilder
     protected function configureContentTypeForController(
         string $providerExtensionName,
         string $controllerClassName,
-        string $controllerAction
+        string $controllerAction,
+        ?string $contentType
     ): void {
         $emulatedPluginName = ucfirst(strtolower($controllerAction));
         $controllerName = $this->getControllerNameForPluginRegistration($controllerClassName);
+        $extensionIdentity = $this->getExtensionIdentityForPluginRegistration($providerExtensionName);
 
         // Sanity check: if controller does not implement a custom action method matching template, default to "render"
         if (!method_exists($controllerClassName, $controllerAction . 'Action')) {
@@ -151,12 +158,37 @@ class ContentTypeBuilder
         // and View can be inherited from Flux/Fluidcontent as to reduce the amount of boilerplate that will be
         // required, and to allow using Flux forms in the template file.
         ExtensionUtility::configurePlugin(
-            $this->getExtensionIdentityForPluginRegistration($providerExtensionName),
+            $extensionIdentity,
             $emulatedPluginName,
             [$controllerName => $controllerAction . ',outlet,error'],
             [$controllerName => 'outlet'],
             ExtensionUtility::PLUGIN_TYPE_CONTENT_ELEMENT
         );
+
+        if ($contentType !== null && $this->getPluginNamePartFromContentType($contentType) === null) {
+            // Content type is registered as a root content type (not scoped within a specific extension). We need to
+            // relocate the TypoScript that was registered for the pseudo-plugin, to make sure it gets assigned in the
+            // right place (e.g. tt_content.text, instead of tt_content.myext_text). We do this by copying the
+            // TypoScript that ExtensionUtility::configurePlugin adds with a plugin name prefix, into a non-prefixed
+            // location - and finally clearing the TypoScript object that ExtensionUtility::configurePlugin created.
+            // This allows a content type registered with \FluidTYPO3\Flux\Core::registerTemplateAsContentType in an
+            // ext_localconf.php file to correctly override TYPO3's core content types if a core content type name was
+            // used in the registration.
+            $targetContentTypeName = GeneralUtility::camelCaseToLowerCaseUnderscored($contentType);
+            $sourceContentTypeName = strtolower(
+                strtolower($extensionIdentity) .
+                '_' .
+                str_replace('_', '', $contentType)
+            );
+            ExtensionManagementUtility::addTypoScript(
+                $emulatedPluginName . '_' . $controllerName . '_' . $controllerAction,
+                'setup',
+                'tt_content.' . $targetContentTypeName . ' < tt_content.' . $sourceContentTypeName .
+                PHP_EOL .
+                'tt_content.' . $sourceContentTypeName . ' >',
+                'defaultContentRendering'
+            );
+        }
     }
 
     protected function validateContentController(string $controllerClassName): bool
@@ -167,10 +199,9 @@ class ContentTypeBuilder
     public function registerContentType(
         string $providerExtensionName,
         string $contentType,
-        ProviderInterface $provider,
-        string $pluginName
+        ProviderInterface $provider
     ): void {
-        $cacheId = 'CType_' . md5($contentType . '__' . $providerExtensionName . '__' . $pluginName);
+        $cacheId = 'CType_' . md5($contentType . '__' . $providerExtensionName);
         $cache = $this->getCache();
         /** @var Form|null $form */
         $form = $cache->get($cacheId);
@@ -198,8 +229,18 @@ class ContentTypeBuilder
             }
         }
 
-        $this->registerExtbasePluginForForm($providerExtensionName, $contentType, $form);
-        $this->addPageTsConfig($form, $contentType);
+        $icon = $this->addIcon($form, $contentType);
+        $this->addPageTsConfig($form, $contentType, $icon);
+
+        ExtensionManagementUtility::addPlugin(
+            [
+                $form->getLabel(),
+                $contentType,
+                $icon,
+            ],
+            'CType',
+            $providerExtensionName
+        );
 
         // Flush the cache entry that was generated; make sure any TypoScript overrides will take place once
         // all TypoScript is finally loaded.
@@ -213,16 +254,9 @@ class ContentTypeBuilder
         if (isset($GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType])) {
             return $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType];
         }
-        $icon = MiscellaneousUtility::getIconForTemplate($form);
-        if (!empty($icon)) {
-            if (strpos($icon, 'EXT:') === 0 || $icon[0] !== '/') {
-                $icon = GeneralUtility::getFileAbsFileName($icon);
-            }
-        }
-        if (!$icon) {
-            $icon = ExtensionManagementUtility::extPath('flux', 'Resources/Public/Icons/Extension.svg');
-        }
-        $iconIdentifier = $this->createIcon($icon, $contentType);
+        $iconIdentifier = MiscellaneousUtility::getIconForTemplate($form);
+
+        //$iconIdentifier = $this->createIcon($icon, $contentType);
         $GLOBALS['TCA']['tt_content']['ctrl']['typeicon_classes'][$contentType] = $iconIdentifier;
         return $iconIdentifier;
     }
@@ -232,13 +266,14 @@ class ContentTypeBuilder
      */
     public function addBoilerplateTableConfiguration(string $contentType): void
     {
-        // use CompatibilityRegistry for correct DefaultData class
-        $showItem = CompatibilityRegistry::get(static::DEFAULT_SHOWITEM);
-        $GLOBALS['TCA']['tt_content']['types'][$contentType]['showitem'] = $showItem;
+        if (!isset($GLOBALS['TCA']['tt_content']['types'][$contentType]['showitem'])) {
+            $showItem = CompatibilityRegistry::get(static::DEFAULT_SHOWITEM);
+            $GLOBALS['TCA']['tt_content']['types'][$contentType]['showitem'] = $showItem;
+        }
         ExtensionManagementUtility::addToAllTCAtypes('tt_content', 'pi_flexform', $contentType);
     }
 
-    protected function addPageTsConfig(Form $form, string $contentType): void
+    protected function addPageTsConfig(Form $form, string $contentType, string $icon): void
     {
         // Icons required solely for use in the "new content element" wizard
         $formId = $form->getId() ?: $contentType;
@@ -275,7 +310,7 @@ class ContentTypeBuilder
                 mod.wizards.newContentElement.wizardItems.%s.show := addToList(%s)',
                 $groupName,
                 $formId,
-                $this->addIcon($form, $contentType),
+                $icon,
                 $form->getLabel(),
                 $form->getDescription(),
                 $contentType,
@@ -291,31 +326,6 @@ class ContentTypeBuilder
         $replaced = (string) preg_replace($pattern, '_', $string);
         $replaced = trim($replaced, '_');
         return empty($replaced) ? md5($string) : $replaced;
-    }
-
-    /**
-     * @param string $extensionName
-     * @param string $contentType
-     * @param Form $form
-     * @return void
-     */
-    protected function registerExtbasePluginForForm(string $extensionName, string $contentType, Form $form): void
-    {
-        if (!isset($GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'])) {
-            // For whatever reason, TCA is not loaded or is loaded in an incomplete state. Attempting to register a
-            // plugin would fail when this is the case, so we return and avoid manipulating TCA of tt_content until
-            // a fully initialized TCA context exists.
-            // @see \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPlugin
-            return;
-        }
-
-        ExtensionUtility::registerPlugin(
-            $this->getExtensionIdentityForPluginRegistration($extensionName),
-            $this->getPluginNamePartFromContentType($contentType),
-            (string) $form->getLabel(),
-            MiscellaneousUtility::getIconForTemplate($form),
-            $extensionName
-        );
     }
 
     protected function initializeNewContentWizardGroup(string $groupName, string $groupLabel): void
@@ -391,8 +401,12 @@ class ContentTypeBuilder
         return $controllerClassName;
     }
 
-    private function getPluginNamePartFromContentType(string $contentType): string
+    private function getPluginNamePartFromContentType(string $contentType): ?string
     {
+        $underscorePosition = strpos($contentType, '_');
+        if ($underscorePosition === false) {
+            return null;
+        }
         return GeneralUtility::underscoredToUpperCamelCase(substr($contentType, strpos($contentType, '_') + 1));
     }
 }

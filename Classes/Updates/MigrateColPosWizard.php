@@ -7,6 +7,7 @@ use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
 
 /**
  * Fix the "sorting" value of content elements.
@@ -104,7 +105,7 @@ class MigrateColPosWizard implements
                 $queryBuilder->expr()->eq('parent.uid', 'FLOOR(child.colPos / 100)'),
                 $queryBuilder->expr()->gte('child.sorting', 'parent.sorting')
             )
-            ->execute()
+            ->executeQuery()
             ->fetchOne();
 
         $this->output->write($numRows . ' content elements need to be fixed');

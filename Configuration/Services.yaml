@@ -4,20 +4,8 @@ services:
     autoconfigure: true
     public: false
 
-  #FluidTYPO3\Flux\:
-  #  resource: '../Classes/*'
-
-  FluidTYPO3\Flux\ViewHelpers\:
-    resource: '../Classes/ViewHelpers/*'
-
-  FluidTYPO3\Flux\Service\:
-    resource: '../Classes/Service/*'
-
-  #FluidTYPO3\Flux\ViewHelpers\FormViewHelper:
-  #  public: true
-
-  FluidTYPO3\Flux\Controller\ContentController:
-    public: true
+  FluidTYPO3\Flux\:
+    resource: '../Classes/*'
 
   FluidTYPO3\Flux\Integration\BackendLayoutRenderer:
     public: true
@@ -25,14 +13,10 @@ services:
   TYPO3\CMS\Backend\View\BackendViewFactory:
     public: true
 
-  FluidTYPO3\Flux\Integration\Overrides\BackendLayoutView:
-    public: true
-    autowire: true
-
   FluidTYPO3\Flux\Integration\Event\PageContentPreviewRenderingEventListener:
     tags:
       - name: event.listener
-        identifier: 'flux-boot-completed'
+        identifier: 'flux-page-content-preview'
         method: 'renderPreview'
         event: TYPO3\CMS\Backend\View\Event\PageContentPreviewRenderingEvent
   FluidTYPO3\Flux\Integration\Event\BootCompletedEventListener:

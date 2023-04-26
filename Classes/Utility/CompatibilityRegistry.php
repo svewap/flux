@@ -179,11 +179,7 @@ abstract class CompatibilityRegistry
      */
     public static function get(string $scope, string $version = self::VERSION_DEFAULT, $default = null)
     {
-        $value = static::cache(static::$registry, 'registry', $scope, $version);
-        if (null === $value && $default !== $value) {
-            return $default;
-        }
-        return $value;
+        return static::cache(static::$registry, 'registry', $scope, $version) ?? $default;
     }
 
     public static function hasFeatureFlag(string $scope, string $flag, string $version = self::VERSION_DEFAULT): bool
@@ -196,20 +192,17 @@ abstract class CompatibilityRegistry
         return (array) static::cache(static::$featureFlags, 'featureFlags', $scope, $version);
     }
 
-    protected static function resolveVersion(string $version): string
-    {
-        return static::VERSION_DEFAULT === $version ? TYPO3_version : $version;
-    }
-
     /**
      * @return mixed
      */
     protected static function resolveVersionedValue(array &$versionedValues, string $version)
     {
-        $version = VersionNumberUtility::getCurrentTypo3Version();
+        if ($version === self::VERSION_DEFAULT) {
+            $version = VersionNumberUtility::getCurrentTypo3Version();
+        }
         krsort($versionedValues);
         foreach ($versionedValues as $valueVersion => $value) {
-            if (version_compare($version, $valueVersion, '>=')) {
+            if (version_compare((string) $version, (string) $valueVersion, '>=')) {
                 return $value;
             }
         }

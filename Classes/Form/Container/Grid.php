@@ -16,7 +16,7 @@ use FluidTYPO3\Flux\Utility\ColumnNumberUtility;
 use TYPO3\CMS\Backend\View\BackendLayout\BackendLayout;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
-class Grid extends AbstractFormContainer implements ContainerInterface
+class Grid extends AbstractFormContainer
 {
     /**
      * @var Row[]|\SplObjectStorage

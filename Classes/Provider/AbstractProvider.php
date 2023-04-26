@@ -62,7 +62,7 @@ class AbstractProvider implements ProviderInterface
     protected ?array $templatePaths = null;
     protected ?string $configurationSectionName = 'Configuration';
     protected string $extensionKey = 'FluidTYPO3.Flux';
-    protected string $pluginName = '';
+    protected ?string $pluginName = null;
     protected ?string $controllerName = null;
     protected string $controllerAction = 'default';
     protected int $priority = 50;
@@ -130,14 +130,18 @@ class AbstractProvider implements ProviderInterface
         $pluginTypeFromRecord = $row['list_type'] ?? null;
 
         $rowContainsPlugin = $contentTypeFromRecord === static::CONTENT_OBJECT_TYPE_LIST;
+        $isContentRecord = $table === 'tt_content';
         $rowIsEmpty = (0 === count($row));
         $matchesContentType = $contentTypeFromRecord === $contentObjectType;
         $matchesPluginType = $rowContainsPlugin && $pluginTypeFromRecord === $listType;
         $matchesTableName = ($providerTableName === $table || !$table);
         $matchesFieldName = ($providerFieldName === $field || !$field);
         $matchesExtensionKey = ($providerExtensionKey === $extensionKey || !$extensionKey);
+
+        // Requirements: must always match ext-key, table and field. If record is a content record, must additionally
+        // match either Ctype and list_type, or must match CType in record that does not have a list_type.
         $isFullMatch = $matchesExtensionKey && $matchesTableName && $matchesFieldName
-            && ($matchesContentType || ($rowContainsPlugin && $matchesPluginType));
+            && (!$isContentRecord || ($matchesContentType && ((!$rowContainsPlugin) || $matchesPluginType)));
         $isFallbackMatch = ($matchesTableName && $matchesFieldName && $rowIsEmpty);
         return ($isFullMatch || $isFallbackMatch);
     }
@@ -160,10 +164,10 @@ class AbstractProvider implements ProviderInterface
         return class_exists($expectedClassName) ? $expectedClassName : null;
     }
 
-    protected function getViewVariables(array $row): array
+    protected function getViewVariables(array $row, ?string $forField = null): array
     {
         $extensionKey = (string) $this->getExtensionKey($row);
-        $fieldName = $this->getFieldName($row);
+        $fieldName = $forField ?? $this->getFieldName($row);
         $variables = [
             'record' => $row,
             'settings' => $this->configurationService->getSettingsForExtensionName($extensionKey)
@@ -183,22 +187,31 @@ class AbstractProvider implements ProviderInterface
         return $variables;
     }
 
-    public function getForm(array $row): ?Form
+    public function getForm(array $row, ?string $forField = null): ?Form
     {
         /** @var Form $form */
         $form = $this->form
-            ?? $this->createCustomFormInstance($row)
-            ?? $this->extractConfiguration($row, 'form')
+            ?? $this->createCustomFormInstance($row, $forField)
+            ?? $this->extractConfiguration($row, 'form', $forField)
             ?? Form::create();
         $form->setOption(Form::OPTION_RECORD, $row);
         return $form;
     }
 
-    protected function createCustomFormInstance(array $row): ?Form
+    protected function createCustomFormInstance(array $row, ?string $forField = null): ?Form
     {
         $formClassName = $this->resolveFormClassName($row);
         if ($formClassName !== null && class_exists($formClassName)) {
-            return $formClassName::create(['row']);
+            $tableName = $this->getTableName($row);
+            $fieldName = $forField ?? $this->getFieldName($row);
+            $id = 'row_' . $row['uid'];
+            if ($tableName) {
+                $id = $tableName;
+            }
+            if ($fieldName) {
+                $id .= '_' . $fieldName;
+            }
+            return $formClassName::create(['id' => $id]);
         }
         return null;
     }
@@ -233,7 +246,7 @@ class AbstractProvider implements ProviderInterface
                             'column' . $object['colPos'],
                             $object['label'] ?? 'Column ' . $object['colPos']
                         );
-                        $gridColumn->setColumnPosition($object['colPos']);
+                        $gridColumn->setColumnPosition((int) $object['colPos']);
                     }
                 } elseif ($container->getGridMode() === Form\Container\Section::GRID_MODE_COLUMNS) {
                     $gridRow = $grid->createContainer(Form\Container\Row::class, 'row');
@@ -243,8 +256,8 @@ class AbstractProvider implements ProviderInterface
                             'column' . $object['colPos'],
                             $object['label'] ?? 'Column ' . $object['colPos']
                         );
-                        $gridColumn->setColumnPosition($object['colPos']);
-                        $gridColumn->setColSpan($object['colspan'] ?? 1);
+                        $gridColumn->setColumnPosition((int) $object['colPos']);
+                        $gridColumn->setColSpan((int) ($object['colspan'] ?? 1));
                     }
                 }
                 return $grid;
@@ -277,17 +290,17 @@ class AbstractProvider implements ProviderInterface
     /**
      * @return mixed|null
      */
-    protected function extractConfiguration(array $row, ?string $name = null)
+    protected function extractConfiguration(array $row, ?string $name = null, ?string $forField = null)
     {
-        $cacheKeyAll = $this->getCacheKeyForStoredVariable($row, '_all');
+        $cacheKeyAll = $this->getCacheKeyForStoredVariable($row, '_all') . '_' . $forField;
         /** @var array $allCached */
         $allCached = $this->configurationService->getFromCaches($cacheKeyAll);
         $fromCache = $allCached[$name] ?? null;
         if ($fromCache) {
             return $fromCache;
         }
-        $configurationSectionName = $this->getConfigurationSectionName($row);
-        $viewVariables = $this->getViewVariables($row);
+        $configurationSectionName = $this->getConfigurationSectionName($row, $forField);
+        $viewVariables = $this->getViewVariables($row, $forField);
         $view = $this->getViewForRecord($row);
         $view->getRenderingContext()->getViewHelperVariableContainer()->addOrUpdate(
             FormViewHelper::class,
@@ -390,36 +403,11 @@ class AbstractProvider implements ProviderInterface
      * at the same time running through the inheritance tree generated
      * by getInheritanceTree() in order to apply inherited values.
      */
-    public function getFlexFormValues(array $row): array
+    public function getFlexFormValues(array $row, ?string $forField = null): array
     {
-        $fieldName = $this->getFieldName($row);
+        $fieldName = $forField ?? $this->getFieldName($row);
         $form = $this->getForm($row);
         return $this->configurationService->convertFlexFormContentToArray($row[$fieldName] ?? '', $form);
-    }
-
-    /**
-     * Gets the current language name as string, in a format that is
-     * compatible with language pointers in a flexform. Usually this
-     * implies values like "en", "de" etc.
-     *
-     * Return NULL when language is site default language.
-     */
-    protected function getCurrentLanguageName(): ?string
-    {
-        $language = $GLOBALS['TSFE']->lang;
-        if (true === empty($language) || 'default' === $language) {
-            $language = null;
-        }
-        return $language;
-    }
-
-    /**
-     * Gets the pointer name to use whne retrieving values from a
-     * flexform source. Return NULL when pointer is default.
-     */
-    protected function getCurrentValuePointerName(): ?string
-    {
-        return $this->getCurrentLanguageName();
     }
 
     /**
@@ -449,9 +437,9 @@ class AbstractProvider implements ProviderInterface
         return $variables;
     }
 
-    public function getConfigurationSectionName(array $row): ?string
+    public function getConfigurationSectionName(array $row, ?string $forField = null): ?string
     {
-        unset($row);
+        unset($row, $forField);
         return $this->configurationSectionName;
     }
 
@@ -472,12 +460,12 @@ class AbstractProvider implements ProviderInterface
         return $this->name;
     }
 
-    public function getPluginName(): string
+    public function getPluginName(): ?string
     {
         return $this->pluginName;
     }
 
-    public function setPluginName(string $pluginName): self
+    public function setPluginName(?string $pluginName): self
     {
         $this->pluginName = $pluginName;
         return $this;
@@ -611,7 +599,7 @@ class AbstractProvider implements ProviderInterface
      */
     public function postProcessDataStructure(array &$row, ?array &$dataStructure, array $conf): void
     {
-        $form = $this->getForm($row);
+        $form = $this->getForm($row, $conf['fieldName'] ?? null);
         if ($dataStructure !== null && $form !== null) {
             $dataStructure = array_replace_recursive($dataStructure, $form->build());
         }

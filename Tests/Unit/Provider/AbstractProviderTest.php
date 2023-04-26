@@ -17,6 +17,7 @@ use FluidTYPO3\Flux\Provider\AbstractProvider;
 use FluidTYPO3\Flux\Provider\ProviderInterface;
 use FluidTYPO3\Flux\Service\FluxService;
 use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
+use FluidTYPO3\Flux\Tests\Fixtures\Classes\CustomForm;
 use FluidTYPO3\Flux\Tests\Fixtures\Data\Records;
 use FluidTYPO3\Flux\Tests\Fixtures\Data\Xml;
 use FluidTYPO3\Flux\Tests\Unit\AbstractTestCase;
@@ -101,6 +102,179 @@ abstract class AbstractProviderTest extends AbstractTestCase
         $record = Records::$contentRecordWithoutParentAndWithoutChildren;
         $record['pi_flexform'] = Xml::SIMPLE_FLEXFORM_SOURCE_DEFAULT_SHEET_ONE_FIELD;
         return $record;
+    }
+
+    /**
+     * @dataProvider getTriggerTestValues
+     */
+    public function testTrigger(
+        bool $expected,
+        array $row,
+        ?string $tableInProvider,
+        ?string $fieldInProvider,
+        ?string $extensionKeyInProvider,
+        ?string $contentTypeInProvider,
+        ?string $pluginTypeInProvider,
+        ?string $tableToMatch,
+        ?string $fieldToMatch,
+        ?string $extensionKeyToMatch
+    ): void {
+        $subject = $this->getMockBuilder(AbstractProvider::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+        if ($tableInProvider !== null) {
+            $subject->setTableName($tableInProvider);
+        }
+        $subject->setFieldName($fieldInProvider);
+        if ($extensionKeyInProvider !== null) {
+            $subject->setExtensionKey($extensionKeyInProvider);
+        }
+        if ($contentTypeInProvider !== null) {
+            $subject->setContentObjectType($contentTypeInProvider);
+        }
+        if ($pluginTypeInProvider !== null) {
+            $subject->setListType($pluginTypeInProvider);
+        }
+        self::assertSame(
+            $expected,
+            $subject->trigger($row, $tableToMatch, $fieldToMatch, $extensionKeyToMatch)
+        );
+    }
+
+    public function getTriggerTestValues(): array
+    {
+        $row = ['uid' => 123];
+        return [
+            'null in all values' => [true, $row, null, null, null, null, null, null, null, null],
+            'mismatched table' => [false, $row, 'table1', null, null, null, null, 'table2', null, null],
+            'matched table, mismatched field' => [
+                false,
+                $row,
+                'table1',
+                'field1',
+                null,
+                null,
+                null,
+                'table1',
+                'field2',
+                null
+            ],
+            'matched table, matched field' => [
+                true,
+                $row,
+                'table1',
+                'field1',
+                null,
+                null,
+                null,
+                'table1',
+                'field1',
+                null
+            ],
+            'matched table, matched field, mismatched extension' => [
+                false,
+                $row,
+                'table1',
+                'field1',
+                null,
+                null,
+                'ext1',
+                'table1',
+                'field1',
+                'ext2'
+            ],
+            'matched table, matched field, matched extension' => [
+                true,
+                $row,
+                'table1',
+                'field1',
+                'ext1',
+                null,
+                null,
+                'table1',
+                'field1',
+                'ext1'
+            ],
+            'content record, matched table, matched field, matched extension, mismatched content type' => [
+                false,
+                $row + ['CType' => 'ct1'],
+                'tt_content',
+                'field1',
+                'ext1',
+                'ct2',
+                null,
+                'tt_content',
+                'field1',
+                'ext1'
+            ],
+            'content record, matched table, matched field, matched extension, matched content type' => [
+                true, $row + ['CType' => 'ct1'],
+                'tt_content',
+                'field1',
+                'ext1',
+                'ct1',
+                null,
+                'tt_content',
+                'field1',
+                'ext1'
+            ],
+            'plugin record, matched table, matched field, matched extension, mismatched plugin type' => [
+                false,
+                ['CType' => 'list', 'list_type' => 'ct1'] + $row,
+                'tt_content',
+                'field1', 'ext1',
+                'list',
+                'ct2',
+                'tt_content',
+                'field1',
+                'ext1'
+            ],
+            'plugin record, matched table, matched field, matched extension, matched plugin type' => [
+                true,
+                ['CType' => 'list', 'list_type' => 'ct1'] + $row,
+                'tt_content',
+                'field1',
+                'ext1',
+                'list',
+                'ct1',
+                'tt_content',
+                'field1',
+                'ext1'
+            ],
+        ];
+    }
+
+    public function testCreateCustomFormInstanceWithNotFoundForm(): void
+    {
+        $subject = $this->getMockBuilder(AbstractProvider::class)->getMockForAbstractClass();
+        $result = $this->callInaccessibleMethod($subject, 'createCustomFormInstance', ['uid' => 123]);
+        self::assertNull($result);
+    }
+
+    /**
+     * @dataProvider getCreateCustomFormInstanceTestValues
+     */
+    public function testCreateCustomFormInstanceWithFoundForm(string $expectedId, ?string $table, ?string $field): void
+    {
+        $subject = $this->getMockBuilder(AbstractProvider::class)
+            ->setMethods(['resolveFormClassName', 'getTableName', 'getFieldName'])
+            ->getMockForAbstractClass();
+        $subject->method('resolveFormClassName')->willReturn(CustomForm::class);
+        $subject->method('getTableName')->willReturn($table);
+        $subject->method('getFieldName')->willReturn($field);
+        $result = $this->callInaccessibleMethod($subject, 'createCustomFormInstance', ['uid' => 123]);
+        self::assertInstanceOf(CustomForm::class, $result);
+        self::assertSame($expectedId, $result->getId());
+    }
+
+    public function getCreateCustomFormInstanceTestValues(): array
+    {
+        return [
+            'with table and field name' => ['table_field', 'table', 'field'],
+            'with table without field name' => ['table', 'table', null],
+            'without table and field name' => ['row_123', null, null],
+            'without table with field name' => ['row_123_field', null, 'field'],
+        ];
     }
 
     /**
@@ -528,6 +702,27 @@ abstract class AbstractProviderTest extends AbstractTestCase
         $record = $this->getBasicRecord();
         $provider->setExtensionKey('test');
         $this->assertSame('test', $provider->getExtensionKey($record));
+    }
+
+    /**
+     * @test
+     */
+    public function canSetPluginName()
+    {
+        $provider = $this->getConfigurationProviderInstance();
+        $provider->setPluginName('test');
+        $this->assertSame('test', $provider->getPluginName());
+    }
+
+    /**
+     * @test
+     */
+    public function canSetControllerAction()
+    {
+        $provider = $this->getConfigurationProviderInstance();
+        $record = $this->getBasicRecord();
+        $provider->setControllerAction('test');
+        $this->assertSame('test', $provider->getControllerActionFromRecord($record));
     }
 
     /**
