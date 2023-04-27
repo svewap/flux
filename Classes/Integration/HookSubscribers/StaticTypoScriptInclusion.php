@@ -44,7 +44,7 @@ class StaticTypoScriptInclusion
 
             /** @var SpooledConfigurationApplicator $applicator */
             $applicator = GeneralUtility::makeInstance(SpooledConfigurationApplicator::class);
-            $applicator->processData();
+            //$applicator->processData(false,'staticTyposcript');
         }
     }
 }

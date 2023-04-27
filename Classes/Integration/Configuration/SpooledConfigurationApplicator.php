@@ -19,7 +19,8 @@ use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
-use TYPO3\CMS\Core\Utility\DebugUtility;
+use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
+use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Exception;
 
@@ -125,7 +126,7 @@ class SpooledConfigurationApplicator
         $GLOBALS['TYPO3_REQUEST'] = $GLOBALS['TYPO3_REQUEST'] ?? (new ServerRequest())->withAttribute(
             'applicationType',
             $isBackend ? SystemEnvironmentBuilder::REQUESTTYPE_BE : SystemEnvironmentBuilder::REQUESTTYPE_FE
-        );
+        )->withAttribute('frontend.typoscript',new FrontendTypoScript(new RootNode(),[]));
 
         uasort(
             $providers,
@@ -149,6 +150,7 @@ class SpooledConfigurationApplicator
                 }
             }
         }
+        unset($GLOBALS['TYPO3_REQUEST']);
     }
 
     private function resolveSortingValue(?Form $form): int
