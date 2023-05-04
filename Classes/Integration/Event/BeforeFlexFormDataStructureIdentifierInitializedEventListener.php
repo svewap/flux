@@ -18,13 +18,17 @@ class BeforeFlexFormDataStructureIdentifierInitializedEventListener
     {
         /** @var FlexFormBuilder $flexFormBuilder */
         $flexFormBuilder = GeneralUtility::makeInstance(FlexFormBuilder::class);
-        $event->setIdentifier(
-            $flexFormBuilder->resolveDataStructureIdentifier(
-                $event->getFieldTca(),
-                $event->getTableName(),
-                $event->getFieldName(),
-                $event->getRow()
-            )
+        $identifier = $flexFormBuilder->resolveDataStructureIdentifier(
+            $event->getFieldTca(),
+            $event->getTableName(),
+            $event->getFieldName(),
+            $event->getRow()
         );
+
+        if ($identifier !== null) {
+            $event->setIdentifier(
+                $identifier
+            );
+        }
     }
 }

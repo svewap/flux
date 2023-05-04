@@ -18,10 +18,12 @@ class BeforeFlexFormDataStructureParsedEventListener
     {
         /** @var FlexFormBuilder $flexFormBuilder */
         $flexFormBuilder = GeneralUtility::makeInstance(FlexFormBuilder::class);
-        $event->setDataStructure(
-            $flexFormBuilder->parseDataStructureByIdentifier(
-                $event->getIdentifier()
-            )
+        $identifier = $flexFormBuilder->parseDataStructureByIdentifier(
+            $event->getIdentifier()
         );
+        if ($identifier !== null) {
+            $event->setDataStructure($identifier);
+        }
+
     }
 }
