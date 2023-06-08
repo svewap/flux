@@ -34,9 +34,6 @@ $conf = isset($_EXTCONF) ? $_EXTCONF : null;
             'tx_fed_page_controller_action,tx_fed_page_controller_action_sub,tx_fed_page_flexform,tx_fed_page_flexform_sub,';
     }
 
-    $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'][\FluidTYPO3\Flux\Updates\MigrateColPosWizard::class]
-        = \FluidTYPO3\Flux\Updates\MigrateColPosWizard::class;
-
     // Globally registered fluid namespace
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['namespaces']['flux'] = ['FluidTYPO3\\Flux\\ViewHelpers'];
 

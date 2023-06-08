@@ -1,13 +1,17 @@
 <?php
 namespace FluidTYPO3\Flux\Updates;
 
+use Doctrine\DBAL\Exception;
 use FluidTYPO3\Flux\Utility\ColumnNumberUtility;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Database\Query\Restriction\DeletedRestriction;
 use TYPO3\CMS\Core\Registry;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Install\Attribute\UpgradeWizard;
+use TYPO3\CMS\Install\Updates\ChattyInterface;
 use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
+use TYPO3\CMS\Install\Updates\UpgradeWizardInterface;
 
 /**
  * Fix the "sorting" value of content elements.
@@ -29,9 +33,10 @@ use TYPO3\CMS\Install\Updates\DatabaseUpdatedPrerequisite;
  * @author Christian Weiske <weiske@mogic.com>
  * @codeCoverageIgnore
  */
+#[UpgradeWizard('migrateColPosWizard')]
 class MigrateColPosWizard implements
-    \TYPO3\CMS\Install\Updates\UpgradeWizardInterface,
-    \TYPO3\CMS\Install\Updates\ChattyInterface
+    UpgradeWizardInterface,
+    ChattyInterface
 {
     /**
      * @var OutputInterface
@@ -46,16 +51,6 @@ class MigrateColPosWizard implements
     public function getTitle(): string
     {
         return 'Flux: Fix content "sorting" values';
-    }
-
-    /**
-     * Returns the identifier of this class
-     *
-     * @return string The identifier of this update wizard
-     */
-    public function getIdentifier(): string
-    {
-        return static::class;
     }
 
     /**
@@ -88,6 +83,7 @@ class MigrateColPosWizard implements
      * Check if data for migration exists.
      *
      * @return bool
+     * @throws Exception
      */
     public function updateNecessary(): bool
     {
