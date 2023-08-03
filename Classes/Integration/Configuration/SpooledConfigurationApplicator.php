@@ -18,6 +18,7 @@ use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\Core\ApplicationContext;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
+use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\TypoScript\AST\Node\RootNode;
 use TYPO3\CMS\Core\TypoScript\FrontendTypoScript;
@@ -30,6 +31,13 @@ class SpooledConfigurationApplicator
 
     public function processData(): void
     {
+
+        $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable('pages');
+        $tableColumns = $connection->createSchemaManager()->listTableColumns('pages');
+        if (count($tableColumns) === 0) {
+            return;
+        }
+
         // Initialize the TCA needed by "template as CType" integrations
         static::spoolQueuedContentTypeTableConfigurations(
             Core::getQueuedContentTypeRegistrations()
