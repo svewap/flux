@@ -324,7 +324,7 @@ class PageProvider extends AbstractProvider implements ProviderInterface
 
     protected function loadRecordTreeFromDatabase(array $record): array
     {
-        if (empty($record)) {
+        if (empty($record) || !isset($record['uid']) || !is_numeric($record['uid'])) {
             return [];
         }
         /** @var RootlineUtility $rootLineUtility */
