@@ -16,10 +16,9 @@ use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use TYPO3\CMS\Backend\View\BackendLayout\BackendLayout;
 use TYPO3\CMS\Backend\View\BackendLayout\BackendLayoutCollection;
 use TYPO3\CMS\Backend\View\BackendLayout\DataProviderContext;
-use TYPO3\CMS\Backend\View\BackendLayout\DataProviderInterface;
 use TYPO3\CMS\Backend\View\BackendLayout\DefaultDataProvider;
 
-class BackendLayoutDataProvider extends DefaultDataProvider implements DataProviderInterface
+readonly class BackendLayoutDataProvider extends DefaultDataProvider
 {
     protected ProviderResolver $providerResolver;
     protected WorkspacesAwareRecordService $recordService;
