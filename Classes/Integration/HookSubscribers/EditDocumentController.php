@@ -16,6 +16,6 @@ class EditDocumentController
     {
         /** @var PageRenderer $pageRenderer */
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
-        $pageRenderer->loadRequireJsModule('TYPO3/CMS/Flux/FluxColPosAssignment');
+        //$pageRenderer->loadRequireJsModule('TYPO3/CMS/Flux/FluxColPosAssignment');
     }
 }
