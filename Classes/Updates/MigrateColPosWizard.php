@@ -157,8 +157,8 @@ class MigrateColPosWizard implements
                 ->selectLiteral('MAX(sorting)')
                 ->from('tt_content')
                 ->where(
-                    $queryBuilder->expr()->gte('colPos', $queryBuilder->createNamedParameter($min, \PDO::PARAM_INT)),
-                    $queryBuilder->expr()->lte('colPos', $queryBuilder->createNamedParameter($max, \PDO::PARAM_INT)),
+                    $queryBuilder->expr()->gte('colPos', $queryBuilder->createNamedParameter($min, ParameterType::INTEGER)),
+                    $queryBuilder->expr()->lte('colPos', $queryBuilder->createNamedParameter($max, ParameterType::INTEGER)),
                 )
                 ->execute()
                 ->fetchOne();
@@ -174,15 +174,15 @@ class MigrateColPosWizard implements
                 ->where(
                     $queryBuilder->expr()->eq(
                         'pid',
-                        $queryBuilder->createNamedParameter($contentRow['pid'], \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($contentRow['pid'], ParameterType::INTEGER)
                     ),
                     $queryBuilder->expr()->eq(
                         'colPos',
-                        $queryBuilder->createNamedParameter($contentRow['colPos'], \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($contentRow['colPos'], ParameterType::INTEGER)
                     ),
                     $queryBuilder->expr()->gte(
                         'sorting',
-                        $queryBuilder->createNamedParameter($contentRow['sorting'], \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($contentRow['sorting'], ParameterType::INTEGER)
                     ),
                 )
                 ->orderBy('sorting', 'ASC')
@@ -201,7 +201,7 @@ class MigrateColPosWizard implements
                 $queryBuilder = $connectionPool->getQueryBuilderForTable('tt_content');
                 $res = $queryBuilder
                     ->update('tt_content')
-                    ->where($queryBuilder->expr()->eq('uid', $siblingRow['uid'], \PDO::PARAM_INT))
+                    ->where($queryBuilder->expr()->eq('uid', $siblingRow['uid'], ParameterType::INTEGER))
                     ->set('sorting', $newSorting)
                     ->execute();
 

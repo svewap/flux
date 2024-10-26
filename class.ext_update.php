@@ -199,11 +199,11 @@ class ext_update
         $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('pages');
         $queryBuilder->getRestrictions()->removeAll();
         $queryBuilder->select('uid')->from('pages')->where(
-            $queryBuilder->expr()->orX(
-                $queryBuilder->expr()->eq('backend_layout', $queryBuilder->createNamedParameter('fluidpages__fluidpages', \PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('backend_layout_next_level', $queryBuilder->createNamedParameter('fluidpages__fluidpages', \PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('backend_layout', $queryBuilder->createNamedParameter('fluidpages__grid', \PDO::PARAM_STR)),
-                $queryBuilder->expr()->eq('backend_layout_next_level', $queryBuilder->createNamedParameter('fluidpages__grid', \PDO::PARAM_STR))
+            $queryBuilder->expr()->or(
+                $queryBuilder->expr()->eq('backend_layout', $queryBuilder->createNamedParameter('fluidpages__fluidpages')),
+                $queryBuilder->expr()->eq('backend_layout_next_level', $queryBuilder->createNamedParameter('fluidpages__fluidpages')),
+                $queryBuilder->expr()->eq('backend_layout', $queryBuilder->createNamedParameter('fluidpages__grid')),
+                $queryBuilder->expr()->eq('backend_layout_next_level', $queryBuilder->createNamedParameter('fluidpages__grid'))
             )
         );
         return $queryBuilder->execute()->fetchAll();
@@ -218,16 +218,16 @@ class ext_update
         $q2 = clone $queryBuilder;
         $q1->set('backend_layout', 'flux__grid')
             ->where(
-                $q1->expr()->orX(
-                    $q1->expr()->eq('backend_layout', $q1->createNamedParameter('fluidpages__fluidpages', \PDO::PARAM_STR)),
-                    $q1->expr()->eq('backend_layout_next_level', $q1->createNamedParameter('fluidpages__grid', \PDO::PARAM_STR))
+                $q1->expr()->or(
+                    $q1->expr()->eq('backend_layout', $q1->createNamedParameter('fluidpages__fluidpages')),
+                    $q1->expr()->eq('backend_layout_next_level', $q1->createNamedParameter('fluidpages__grid'))
                 )
             )->execute();
         $q2->set('backend_layout_next_level', 'flux__grid')
             ->where(
-                $q2->expr()->orX(
-                    $q2->expr()->eq('backend_layout_next_level', $q2->createNamedParameter('fluidpages__fluidpages', \PDO::PARAM_STR)),
-                    $q2->expr()->eq('backend_layout_next_level', $q2->createNamedParameter('fluidpages__grid', \PDO::PARAM_STR))
+                $q2->expr()->or(
+                    $q2->expr()->eq('backend_layout_next_level', $q2->createNamedParameter('fluidpages__fluidpages')),
+                    $q2->expr()->eq('backend_layout_next_level', $q2->createNamedParameter('fluidpages__grid'))
                 )
             )->execute();
     }

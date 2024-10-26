@@ -9,6 +9,7 @@ namespace FluidTYPO3\Flux\Integration\HookSubscribers;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use Doctrine\DBAL\ParameterType;
 use FluidTYPO3\Flux\Content\ContentTypeManager;
 use FluidTYPO3\Flux\Enum\ExtensionOption;
 use FluidTYPO3\Flux\Provider\Interfaces\GridProviderInterface;
@@ -145,23 +146,23 @@ class DataHandlerSubscriber
 
         if ($newColumnPosition > 0) {
             $queryBuilder = $this->createQueryBuilderForTable($table);
-            $queryBuilder->update($table)->set('colPos', $newColumnPosition, true, \PDO::PARAM_INT)->where(
+            $queryBuilder->update($table)->set('colPos', $newColumnPosition, true, ParameterType::INTEGER)->where(
                 $queryBuilder->expr()->eq(
                     'uid',
-                    $queryBuilder->createNamedParameter($reference->substNEWwithIDs[$id], \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($reference->substNEWwithIDs[$id], ParameterType::INTEGER)
                 )
             )->orWhere(
-                $queryBuilder->expr()->andX(
+                $queryBuilder->expr()->and(
                     $queryBuilder->expr()->eq(
                         't3ver_oid',
-                        $queryBuilder->createNamedParameter($reference->substNEWwithIDs[$id], \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($reference->substNEWwithIDs[$id], ParameterType::INTEGER)
                     ),
                     $queryBuilder->expr()->eq(
                         't3ver_wsid',
-                        $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->workspace, \PDO::PARAM_INT)
+                        $queryBuilder->createNamedParameter($GLOBALS['BE_USER']->workspace, ParameterType::INTEGER)
                     )
                 )
-            )->execute();
+            )->executeStatement();
         }
 
         static::$copiedRecords[$fieldArray['t3_origuid']] = true;
@@ -498,7 +499,7 @@ class DataHandlerSubscriber
         $queryBuilder->getRestrictions()->removeAll()->add($deletedRestriction);
         $queryBuilder->select(...GeneralUtility::trimExplode(',', $fieldsToSelect))
             ->from($table)
-            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)));
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid,  ParameterType::INTEGER)));
         /** @var array|false $firstResult */
         $firstResult = $queryBuilder->execute()->fetch();
         return $firstResult ?: null;
@@ -513,9 +514,9 @@ class DataHandlerSubscriber
         $queryBuilder->getRestrictions()->removeAll();
         $queryBuilder->select(...GeneralUtility::trimExplode(',', $fieldsToSelect))
             ->from($table)
-            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, \PDO::PARAM_INT)));
+            ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid, ParameterType::INTEGER)));
         /** @var array|false $firstResult */
-        $firstResult = $queryBuilder->execute()->fetch();
+        $firstResult = $queryBuilder->executeQuery()->fetchAssociative();
         return $firstResult ?: null;
     }
 
@@ -559,12 +560,12 @@ class DataHandlerSubscriber
             ->where(
                 $queryBuilder->expr()->eq(
                     'sys_language_uid',
-                    $queryBuilder->createNamedParameter($languageUid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($languageUid, ParameterType::INTEGER)
                 ),
-                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageUid, \PDO::PARAM_INT)),
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageUid, ParameterType::INTEGER)),
                 $queryBuilder->expr()->eq(
                     'l10n_source',
-                    $queryBuilder->createNamedParameter($originalParentUid, \PDO::PARAM_INT)
+                    $queryBuilder->createNamedParameter($originalParentUid, ParameterType::INTEGER)
                 )
             );
         /** @var array|false $firstResult */

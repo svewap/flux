@@ -10,6 +10,7 @@ namespace FluidTYPO3\Flux\Content\TypeDefinition\RecordBased;
  */
 
 use Doctrine\DBAL\Exception\TableNotFoundException;
+use Doctrine\DBAL\ParameterType;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\SingletonInterface;
@@ -38,12 +39,11 @@ class RecordBasedContentTypeDefinitionRepository implements SingletonInterface
             $typeRecords = $queryBuilder->select(...$keys)
                 ->from('content_types')
                 ->where(
-                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT)),
-                    $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, \PDO::PARAM_INT))
+                    $queryBuilder->expr()->eq('deleted', $queryBuilder->createNamedParameter(0, ParameterType::INTEGER)),
+                    $queryBuilder->expr()->eq('hidden', $queryBuilder->createNamedParameter(0, ParameterType::INTEGER))
                 )
                 ->orderBy('sorting', 'ASC')
-                ->execute()
-                ->fetchAll();
+                ->executeQuery();
         } catch (TableNotFoundException $exception) {
             $typeRecords = [];
         }

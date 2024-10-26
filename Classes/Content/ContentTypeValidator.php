@@ -123,7 +123,7 @@ class ContentTypeValidator
             ->where(
                 $queryBuilder->expr()->eq(
                     'CType',
-                    $queryBuilder->createNamedParameter($definition->getContentTypeName(), \PDO::PARAM_STR)
+                    $queryBuilder->createNamedParameter($definition->getContentTypeName())
                 )
             );
         return (integer) $queryBuilder->execute()->rowCount();

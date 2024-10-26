@@ -121,7 +121,7 @@ class UserFunctions
             $queryBuilder->expr()->gte('colPos', $minimumColPosValue),
             $queryBuilder->expr()->lt('colPos', $maximumColPosValue)
         );
-        $rows = $query->execute()->fetchAll();
+        $rows = $query->executeQuery()->fetchAllAssociative();
         return empty($rows) ? [] : array_map(function ($colPos) {
             return ColumnNumberUtility::calculateLocalColumnNumber($colPos);
         }, array_unique(array_column($rows, 'colPos')));
