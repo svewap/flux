@@ -12,11 +12,9 @@ use FluidTYPO3\Flux\Builder\FlexFormBuilder;
 use TYPO3\CMS\Core\Configuration\FlexForm\FlexFormTools;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class DynamicFlexForm extends FlexFormTools
+readonly class DynamicFlexForm extends FlexFormTools
 {
     protected FlexFormBuilder $flexFormBuilder;
-
-    protected static bool $recursed = false;
 
     public function __construct()
     {
@@ -36,10 +34,6 @@ class DynamicFlexForm extends FlexFormTools
         string $fieldName,
         array $record
     ): array {
-        if (static::$recursed) {
-            return [];
-        }
-        static::$recursed = true;
         /** @var string|array $originalIdentifier */
         $originalIdentifier = $this->getDataStructureIdentifier(
             [ 'config' => $GLOBALS['TCA'][$tableName]['columns'][$fieldName]['config']],
@@ -47,7 +41,6 @@ class DynamicFlexForm extends FlexFormTools
             $fieldName,
             $record
         );
-        static::$recursed = false;
         if (is_string($originalIdentifier)) {
             /** @var array $originalIdentifier */
             $originalIdentifier = json_decode($originalIdentifier, true);

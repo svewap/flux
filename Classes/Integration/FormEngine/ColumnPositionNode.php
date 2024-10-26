@@ -10,14 +10,13 @@ namespace FluidTYPO3\Flux\Integration\FormEngine;
 
 use TYPO3\CMS\Backend\Form\AbstractNode;
 use TYPO3\CMS\Backend\Form\NodeFactory;
-use TYPO3\CMS\Backend\Form\NodeInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class ColumnPositionNode extends AbstractNode implements NodeInterface
+class ColumnPositionNode extends AbstractNode
 {
     private array $parameters = [];
 
-    public function __construct(NodeFactory $nodeFactory, array $data)
+    public function __construct(NodeFactory $nodeFactory, array $data =  [])
     {
         $this->parameters = $data;
     }

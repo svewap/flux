@@ -12,17 +12,21 @@ namespace FluidTYPO3\Flux\Builder;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\Controller\ControllerContext;
-use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\RequestInterface;
-use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContext;
 use TYPO3\CMS\Fluid\Core\Rendering\RenderingContextFactory;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 
 class RenderingContextBuilder implements SingletonInterface
 {
-    private RequestBuilder $requestBuilder;
+    protected RequestBuilder $requestBuilder;
+
+    protected RequestInterface $request;
+
+    public function getRequest(): RequestInterface
+    {
+        return $this->request;
+    }
 
     public function __construct(RequestBuilder $requestBuilder)
     {
@@ -40,28 +44,15 @@ class RenderingContextBuilder implements SingletonInterface
 
         $renderingContext = $this->createRenderingContextInstance();
 
-        /** @var RequestInterface&Request $request */
-        $request = $this->requestBuilder->buildRequestFor(
+        $this->request = $this->requestBuilder->buildRequestFor(
             $extensionIdentity,
             $controllerName,
             $controllerActionName,
             $pluginName
         );
 
-        if (method_exists($renderingContext, 'getControllerContext')) {
-            /** @var ControllerContext $controllerContext */
-            $controllerContext = $this->buildControllerContext($request);
-            try {
-                $renderingContext->setControllerContext($controllerContext);
-            } catch (\TypeError $error) {
-                throw new \UnexpectedValueException(
-                    'Controller class ' . $request->getControllerObjectName() . ' caused error: ' . $error->getMessage()
-                );
-            }
-        }
-
         if (method_exists($renderingContext, 'setRequest')) {
-            $renderingContext->setRequest($request);
+            $renderingContext->setRequest($this->request);
         }
 
         if (method_exists($renderingContext, 'setControllerAction')) {
@@ -98,23 +89,4 @@ class RenderingContextBuilder implements SingletonInterface
         return $renderingContext;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
-    private function buildControllerContext(RequestInterface $request): ?ControllerContext
-    {
-        /** @var RequestInterface&Request $request */
-        if (class_exists(ControllerContext::class)) {
-            /** @var UriBuilder $uriBuilder */
-            $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-            $uriBuilder->setRequest($request);
-
-            /** @var ControllerContext $controllerContext */
-            $controllerContext = GeneralUtility::makeInstance(ControllerContext::class);
-            $controllerContext->setRequest($request);
-            $controllerContext->setUriBuilder($uriBuilder);
-        }
-
-        return $controllerContext ?? null;
-    }
 }

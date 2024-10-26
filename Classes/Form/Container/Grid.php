@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace FluidTYPO3\Flux\Form\Container;
 
 /*
@@ -17,7 +18,7 @@ use FluidTYPO3\Flux\Utility\ColumnNumberUtility;
 use TYPO3\CMS\Backend\View\BackendLayout\BackendLayout;
 use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
-class Grid extends AbstractFormContainer implements ContainerInterface
+class Grid extends AbstractFormContainer
 {
     /**
      * @var Row[]|\SplObjectStorage
@@ -75,14 +76,14 @@ class Grid extends AbstractFormContainer implements ContainerInterface
                 $columns[$key]['colspan'] = $column->getColspan() ?: 1;
                 $columns[$key]['rowspan'] = $column->getRowspan() ?: 1;
                 $colCount += ($column->getColspan() ?: 1);
-                ++ $index;
+                ++$index;
             }
             $config['colCount'] = max($config['colCount'], $colCount);
             $config['rowCount']++;
             $config['rows.'][$rowKey] = [
                 'columns.' => $columns
             ];
-            ++ $rowIndex;
+            ++$rowIndex;
         }
         return $config;
     }
@@ -106,9 +107,9 @@ class Grid extends AbstractFormContainer implements ContainerInterface
                 $items[] = (new SelectOption($columns[$key]['name'], $colPos, $column['icon']))->toArray();
                 $colCount += $column['colspan'] ? $column['colspan'] : 1;
                 $backendLayout['usedColumns'][$colPos] = $column['name'];
-                ++ $index;
+                ++$index;
             }
-            ++ $rowIndex;
+            ++$rowIndex;
         }
 
         if ($parentRecordUid === 0) {
@@ -138,12 +139,12 @@ class Grid extends AbstractFormContainer implements ContainerInterface
 
         $typoScriptString = '';
         $root = $this->getRoot();
-        $label = (string) $root->getLabel();
+        $label = (string)$root->getLabel();
         foreach ($this->flattenSetup($configuration, 'backend_layout.') as $name => $value) {
             $typoScriptString .= $name . ' = ' . $value . PHP_EOL;
         }
         return $this->createBackendLayout(
-            (string) $this->getRoot()->getName(),
+            (string)$this->getRoot()->getName(),
             $label,
             $typoScriptString
         );
@@ -177,7 +178,7 @@ class Grid extends AbstractFormContainer implements ContainerInterface
     {
         return new BackendLayout(
             $name,
-            (string) LocalizationUtility::translate($label)
+            (string)LocalizationUtility::translate($label)
                 ? $label
                 : 'LLL:EXT:flux/Resources/Private/Language/locallang.xlf:flux.grid.grids.grid',
             $configuration
@@ -189,7 +190,7 @@ class Grid extends AbstractFormContainer implements ContainerInterface
         $converted = [];
         foreach ($configuration as $key => $value) {
             if (true === is_array($value)) {
-                $key = rtrim((string) $key, '.') . '.';
+                $key = rtrim((string)$key, '.') . '.';
                 $value = $this->ensureDottedKeys($value);
             }
             $converted[$key] = $value;

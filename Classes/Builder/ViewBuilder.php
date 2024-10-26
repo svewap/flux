@@ -10,6 +10,7 @@ namespace FluidTYPO3\Flux\Builder;
  */
 
 use FluidTYPO3\Flux\Integration\PreviewView;
+use TYPO3\CMS\Core\Domain\RecordFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3Fluid\Fluid\View\ViewInterface;
@@ -41,8 +42,14 @@ class ViewBuilder
             $templatePathAndFilename
         );
 
+        $recordFactory = GeneralUtility::makeInstance(RecordFactory::class);
+
         /** @var PreviewView $view */
-        $view = GeneralUtility::makeInstance($viewClassName);
+        $view = GeneralUtility::makeInstance(
+            $viewClassName,
+            $renderingContext,
+            $recordFactory
+        );
         $view->setRenderingContext($renderingContext);
         return $view;
     }
@@ -65,8 +72,14 @@ class ViewBuilder
             $templatePathAndFilename
         );
 
+        $recordFactory = GeneralUtility::makeInstance(RecordFactory::class);
+
         /** @var TemplateView $view */
-        $view = GeneralUtility::makeInstance($viewClassName);
+        $view = GeneralUtility::makeInstance(
+            $viewClassName,
+            $renderingContext,
+            $recordFactory
+        );
         $view->setRenderingContext($renderingContext);
         return $view;
     }

@@ -13,11 +13,11 @@ use TYPO3\CMS\Backend\Form\NodeFactory;
 use TYPO3\CMS\Backend\Form\NodeInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class HtmlOutputNode extends AbstractNode implements NodeInterface
+class HtmlOutputNode extends AbstractNode
 {
     private array $parameters = [];
 
-    public function __construct(NodeFactory $nodeFactory, array $data)
+    public function __construct(NodeFactory $nodeFactory, array $data = [])
     {
         $this->parameters = $data;
     }

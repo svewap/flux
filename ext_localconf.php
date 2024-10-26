@@ -1,39 +1,44 @@
 <?php
 
+use FluidTYPO3\Flux\Controller\PageController;
+use FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility;
+use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
+
 $conf = isset($_EXTCONF) ? $_EXTCONF : null;
 
 (function () use ($conf) {
     if (!is_array($GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] ?? null)) {
-        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = array(
+        $GLOBALS['TYPO3_CONF_VARS']['SYS']['caching']['cacheConfigurations']['flux'] = [
             'frontend' => \TYPO3\CMS\Core\Cache\Frontend\VariableFrontend::class,
             'backend' => \TYPO3\CMS\Core\Cache\Backend\SimpleFileBackend::class,
-            'groups' => array('system'),
+            'groups' => ['system'],
             'options' => [
                 'defaultLifetime' => 2592000,
             ],
-        );
+        ];
     }
 
-    \FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::initialize($conf);
+    ExtensionConfigurationUtility::initialize($conf);
 
-    if (\FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::getOption(\FluidTYPO3\Flux\Enum\ExtensionOption::OPTION_PAGE_INTEGRATION)) {
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+    if (ExtensionConfigurationUtility::getOption(\FluidTYPO3\Flux\Enum\ExtensionOption::OPTION_PAGE_INTEGRATION)) {
+        ExtensionUtility::configurePlugin(
             'Flux',
             'Page',
             [
-                \FluidTYPO3\Flux\Controller\PageController::class => 'render,error',
+                PageController::class => 'render,error',
             ],
             [],
-            \TYPO3\CMS\Extbase\Utility\ExtensionUtility::PLUGIN_TYPE_PLUGIN
+            ExtensionUtility::PLUGIN_TYPE_PLUGIN
         );
 
         \FluidTYPO3\Flux\Core::registerConfigurationProvider(\FluidTYPO3\Flux\Provider\PageProvider::class);
 
-        if (\FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::getOption(\FluidTYPO3\Flux\Enum\ExtensionOption::OPTION_AUTOLOAD)) {
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptConstants(file_get_contents(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('flux', 'Configuration/TypoScript/constants.txt')));
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(file_get_contents(\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::extPath('flux', 'Configuration/TypoScript/setup.txt')));
+        if (ExtensionConfigurationUtility::getOption(\FluidTYPO3\Flux\Enum\ExtensionOption::OPTION_AUTOLOAD)) {
+            ExtensionManagementUtility::addTypoScriptConstants(file_get_contents(ExtensionManagementUtility::extPath('flux', 'Configuration/TypoScript/constants.txt')));
+            ExtensionManagementUtility::addTypoScriptSetup(file_get_contents(ExtensionManagementUtility::extPath('flux', 'Configuration/TypoScript/setup.txt')));
         } else {
-            \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile('flux', 'Configuration/TypoScript', 'Flux PAGE rendering');
+            ExtensionManagementUtility::addStaticFile('flux', 'Configuration/TypoScript', 'Flux PAGE rendering');
         }
 
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['BackendLayoutDataProvider']['flux'] = \FluidTYPO3\Flux\Backend\BackendLayoutDataProvider::class;
@@ -42,8 +47,10 @@ $conf = isset($_EXTCONF) ? $_EXTCONF : null;
             $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['cms/layout/db_layout.php']['drawHeaderHook'][] = \FluidTYPO3\Flux\Integration\HookSubscribers\PagePreviewRenderer::class . '->render';
         }
 
+        /*
         $GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'] .= ($GLOBALS['TYPO3_CONF_VARS']['FE']['addRootLineFields'] == '' ? '' : ',') .
             'tx_fed_page_controller_action,tx_fed_page_controller_action_sub,tx_fed_page_flexform,tx_fed_page_flexform_sub,';
+        */
     }
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/install']['update'][\FluidTYPO3\Flux\Updates\MigrateColPosWizard::class]
@@ -107,9 +114,11 @@ $conf = isset($_EXTCONF) ? $_EXTCONF : null;
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Backend\Controller\Page\LocalizationController::class]['className'] = \FluidTYPO3\Flux\Integration\Overrides\LocalizationController::class;
     }
 
+    /*
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\TYPO3\CMS\Extbase\Configuration\ConfigurationManager::class]['className'] = version_compare(\TYPO3\CMS\Core\Utility\VersionNumberUtility::getCurrentTypo3Version(), '11.0', '<')
         ? \FluidTYPO3\Flux\Integration\Overrides\LegacyChimeraConfigurationManager::class
         : \FluidTYPO3\Flux\Integration\Overrides\ChimeraConfigurationManager::class;
+    */
 
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processDatamapClass'][] =
         \FluidTYPO3\Flux\Integration\HookSubscribers\DataHandlerSubscriber::class;
@@ -169,7 +178,7 @@ $conf = isset($_EXTCONF) ? $_EXTCONF : null;
         \FluidTYPO3\Flux\Core::registerConfigurationProvider(\FluidTYPO3\Flux\Content\TypeDefinition\RecordBased\RecordBasedContentGridProvider::class);
     }
 
-    if (\FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::getOption(\FluidTYPO3\Flux\Utility\ExtensionConfigurationUtility::OPTION_FLEXFORM_TO_IRRE)) {
+    if (ExtensionConfigurationUtility::getOption(ExtensionConfigurationUtility::OPTION_FLEXFORM_TO_IRRE)) {
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['formDataGroup']['tcaDatabaseRecord'][\FluidTYPO3\Flux\Integration\FormEngine\NormalizedDataStructureProvider::class] = [
             'before' => [
                 \TYPO3\CMS\Backend\Form\FormDataProvider\TcaColumnsRemoveUnused::class,

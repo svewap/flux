@@ -15,12 +15,12 @@ trait DataAccessTrait
     /**
      * @var ConfigurationManagerInterface
      */
-    protected $configurationManager;
+    protected ConfigurationManagerInterface $configurationManager;
 
     /**
      * @var array
      */
-    protected $settings;
+    protected array $settings;
 
     public function injectConfigurationManager(ConfigurationManagerInterface $configurationManager): void
     {

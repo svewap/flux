@@ -7,11 +7,11 @@ use TYPO3\CMS\Backend\Form\NodeFactory;
 use TYPO3\CMS\Backend\Form\NodeInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
-class TemplateSourceDumperNode extends AbstractNode implements NodeInterface
+class TemplateSourceDumperNode extends AbstractNode
 {
     private array $parameters = [];
 
-    public function __construct(NodeFactory $nodeFactory, array $data)
+    public function __construct(NodeFactory $nodeFactory, array $data = [])
     {
         $this->parameters = $data;
     }

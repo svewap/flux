@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+
 namespace FluidTYPO3\Flux\Controller;
 
 /*
@@ -30,10 +31,7 @@ use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 use TYPO3\CMS\Extbase\Mvc\Controller\Arguments;
 use TYPO3\CMS\Extbase\Mvc\Controller\ControllerInterface;
-use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
 use TYPO3\CMS\Extbase\Mvc\Request;
-use TYPO3\CMS\Extbase\Mvc\Response;
-use TYPO3\CMS\Extbase\Mvc\ResponseInterface;
 use TYPO3\CMS\Fluid\View\TemplatePaths;
 use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
@@ -67,13 +65,14 @@ abstract class AbstractFluxController extends ActionController
     protected ?ControllerProviderInterface $provider = null;
 
     public function __construct(
-        RenderingContextBuilder $renderingContextBuilder,
-        RequestBuilder $requestBuilder,
+        RenderingContextBuilder      $renderingContextBuilder,
+        RequestBuilder               $requestBuilder,
         WorkspacesAwareRecordService $recordService,
-        TypoScriptService $typoScriptService,
-        ProviderResolver $providerResolver,
-        Resolver $resolver
-    ) {
+        TypoScriptService            $typoScriptService,
+        ProviderResolver             $providerResolver,
+        Resolver                     $resolver
+    )
+    {
         $this->renderingContextBuilder = $renderingContextBuilder;
         $this->requestBuilder = $requestBuilder;
         $this->recordService = $recordService;
@@ -106,12 +105,12 @@ abstract class AbstractFluxController extends ActionController
         $extensionName = ExtensionNamingUtility::getExtensionName($extensionKey);
         $pluginName = $this->request->getPluginName();
         $this->settings = RecursiveArrayUtility::merge(
-            (array) $this->configurationManager->getConfiguration(
+            (array)$this->configurationManager->getConfiguration(
                 ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS,
                 $extensionName,
                 $pluginName
             ),
-            (array) $this->settings
+            (array)$this->settings
         );
 
         if ($this->provider instanceof DataStructureProviderInterface) {
@@ -159,7 +158,7 @@ abstract class AbstractFluxController extends ActionController
     protected function initializeProvider(): void
     {
         $row = $this->getRecord();
-        $table = (string) $this->getFluxTableName();
+        $table = (string)$this->getFluxTableName();
         $field = $this->getFluxRecordField();
         $provider = $this->providerResolver->resolvePrimaryConfigurationProvider(
             $table,
@@ -209,7 +208,8 @@ abstract class AbstractFluxController extends ActionController
 
     protected function initializeViewHelperVariableContainer(
         ViewHelperVariableContainer $viewHelperVariableContainer
-    ): void {
+    ): void
+    {
         $viewHelperVariableContainer->add(FormViewHelper::class, 'provider', $this->provider);
         $viewHelperVariableContainer->add(
             FormViewHelper::class,
@@ -283,18 +283,6 @@ abstract class AbstractFluxController extends ActionController
         return $view;
     }
 
-    /**
-     * @return \Psr\Http\Message\ResponseInterface|Response
-     */
-    protected function createHtmlResponse(string $html = null)
-    {
-        if (method_exists($this, 'htmlResponse')) {
-            return parent::htmlResponse($html);
-        }
-        $response = clone $this->response;
-        $response->setContent((string) $html);
-        return $response;
-    }
 
     /**
      * Default action, proxy for "render". Added in order to
@@ -304,7 +292,7 @@ abstract class AbstractFluxController extends ActionController
      * vanilla Provider instances when registering them for
      * content object types or other ad-hoc registrations.
      *
-     * @return \Psr\Http\Message\ResponseInterface|Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function defaultAction()
     {
@@ -314,7 +302,7 @@ abstract class AbstractFluxController extends ActionController
     /**
      * Render content
      *
-     * @return \Psr\Http\Message\ResponseInterface|Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function renderAction()
     {
@@ -324,6 +312,7 @@ abstract class AbstractFluxController extends ActionController
                 1672082347
             );
         }
+
         $row = $this->getRecord();
         $extensionKey = $this->provider->getControllerExtensionKeyFromRecord($row);
         $extensionSignature = ExtensionNamingUtility::getExtensionSignature($extensionKey);
@@ -350,7 +339,7 @@ abstract class AbstractFluxController extends ActionController
     }
 
     /**
-     * @return \Psr\Http\Message\ResponseInterface|Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
     protected function performSubRendering(
         string $extensionName,
@@ -358,13 +347,10 @@ abstract class AbstractFluxController extends ActionController
         string $actionName,
         string $pluginName,
         string $pluginSignature
-    ) {
-        if (property_exists($this, 'responseFactory') && $this->responseFactory instanceof ResponseFactoryInterface) {
-            $response = $this->responseFactory->createResponse();
-        } else {
-            $response = GeneralUtility::makeInstance(Response::class);
-        }
-    
+    )
+    {
+        $response = $this->responseFactory->createResponse();
+
         $shouldRelay = $this->hasSubControllerActionOnForeignController($extensionName, $controllerName, $actionName);
         $foreignControllerClass = null;
         $content = null;
@@ -391,7 +377,7 @@ abstract class AbstractFluxController extends ActionController
 
                 $this->configurationManager->setConfiguration(
                     array_merge(
-                        (array) $this->configurationManager->getConfiguration(
+                        (array)$this->configurationManager->getConfiguration(
                             ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT,
                             $vendorLessExtensionName
                         ),
@@ -403,7 +389,7 @@ abstract class AbstractFluxController extends ActionController
                 $paths->fillDefaultsByPackageName(
                     GeneralUtility::camelCaseToLowerCaseUnderscored($vendorLessExtensionName)
                 );
-                $paths->setTemplatePathAndFilename((string) $templatePathAndFilename);
+                $paths->setTemplatePathAndFilename((string)$templatePathAndFilename);
             }
             $content = $this->view->render();
         } else {
@@ -432,14 +418,15 @@ abstract class AbstractFluxController extends ActionController
             ]
         )['content'];
 
-        return $this->createHtmlResponse($content);
+        return $this->htmlResponse($content);
     }
 
     protected function hasSubControllerActionOnForeignController(
         string $extensionName,
         string $controllerName,
         string $actionName
-    ): bool {
+    ): bool
+    {
         $potentialControllerClassName = $this->resolver->resolveFluxControllerClassNameByExtensionKeyAndControllerName(
             $extensionName,
             $controllerName
@@ -462,7 +449,8 @@ abstract class AbstractFluxController extends ActionController
         string $controllerActionName,
         string $pluginName,
         string $pluginSignature
-    ): string {
+    ): string
+    {
         $arguments = $this->getServerRequest()->getQueryParams()[$pluginSignature] ?? [];
         $request = $this->requestBuilder->buildRequestFor(
             $extensionName,
@@ -477,33 +465,22 @@ abstract class AbstractFluxController extends ActionController
         /** @var ControllerInterface $potentialControllerInstance */
         $potentialControllerInstance = GeneralUtility::makeInstance($controllerClassName);
 
-        if (property_exists($this, 'responseFactory') && $this->responseFactory instanceof ResponseFactoryInterface) {
-            /** @var ResponseInterface\ $response */
-            $response = $this->responseFactory->createResponse();
-        } else {
-            /** @var Response $response */
-            $response = GeneralUtility::makeInstance(Response::class);
-        }
+        $response = $this->responseFactory->createResponse();
 
-        try {
-            HookHandler::trigger(
-                HookHandler::CONTROLLER_BEFORE_REQUEST,
-                [
-                    'request' => $this->request,
-                    'response' => $response,
-                    'extensionName' => $extensionName,
-                    'controllerClassName' => $controllerClassName,
-                    'controllerActionName' => $controllerActionName
-                ]
-            );
+        HookHandler::trigger(
+            HookHandler::CONTROLLER_BEFORE_REQUEST,
+            [
+                'request' => $this->request,
+                'response' => $response,
+                'extensionName' => $extensionName,
+                'controllerClassName' => $controllerClassName,
+                'controllerActionName' => $controllerActionName
+            ]
+        );
 
-            /** @var Response|null $responseFromCall */
-            $responseFromCall = $potentialControllerInstance->processRequest($request, $response);
-            if ($responseFromCall) {
-                $response = $responseFromCall;
-            }
-        } catch (StopActionException $error) {
-            // intentionally left blank
+        $responseFromCall = $potentialControllerInstance->processRequest($request, $response);
+        if ($responseFromCall) {
+            $response = $responseFromCall;
         }
         HookHandler::trigger(
             HookHandler::CONTROLLER_AFTER_REQUEST,
@@ -545,6 +522,15 @@ abstract class AbstractFluxController extends ActionController
         return $this->fluxTableName;
     }
 
+    protected function getContentObject(): ?ContentObjectRenderer
+    {
+        /** @var ContentObjectRenderer|null $renderer */
+        $renderer = $this->request->getAttribute(
+            'currentContentObject'
+        );
+        return $renderer;
+    }
+
     public function getRecord(): array
     {
         $contentObject = $this->getContentObject();
@@ -559,25 +545,13 @@ abstract class AbstractFluxController extends ActionController
             $record = array_merge(
                 $record,
                 $this->recordService->getSingle(
-                    (string) $this->getFluxTableName(),
+                    (string)$this->getFluxTableName(),
                     '*',
                     $record['_LOCALIZED_UID']
                 ) ?? $record
             );
         }
         return $record;
-    }
-
-    protected function getContentObject(): ?ContentObjectRenderer
-    {
-        /** @var ContentObjectRenderer|null $renderer */
-        $renderer = $this->getServerRequest()->getAttribute(
-            'currentContentObject',
-            method_exists($this->configurationManager, 'getContentObject') ?
-                $this->configurationManager->getContentObject()
-                : null
-        );
-        return $renderer;
     }
 
     protected function getServerRequest(): ServerRequestInterface

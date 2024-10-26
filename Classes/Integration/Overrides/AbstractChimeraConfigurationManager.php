@@ -8,15 +8,12 @@ use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Extbase\Configuration\BackendConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
-use TYPO3\CMS\Extbase\Configuration\Exception\InvalidConfigurationTypeException;
 use TYPO3\CMS\Extbase\Configuration\FrontendConfigurationManager;
 use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 abstract class AbstractChimeraConfigurationManager extends ConfigurationManager
 {
     protected ContainerInterface $container;
-    protected FrontendConfigurationManager $frontendConfigurationManager;
-    protected BackendConfigurationManager $backendConfigurationManager;
     protected ?ApplicationType $applicationType = null;
 
     /** @var ServerRequest|ServerRequestInterface|null */

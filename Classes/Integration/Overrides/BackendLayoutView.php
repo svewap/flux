@@ -15,6 +15,7 @@ use FluidTYPO3\Flux\Provider\ProviderResolver;
 use FluidTYPO3\Flux\Utility\ColumnNumberUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
 
 class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
 {
@@ -37,7 +38,7 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
      * This method is called as "itemsProcFunc" with the accordant context
      * for tt_content.colPos.
      */
-    public function colPosListItemProcFunc(array $parameters): void
+    public function colPosListItemProcFunc(array &$parameters): void
     {
         $this->record = $parameters['row'];
         $this->addingItemsForContent = true;
@@ -123,9 +124,7 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
                 }
                 $provider = $this->resolvePrimaryProviderForRecord('tt_content', $parentRecord);
                 if ($provider) {
-                    $label = $this->getLanguageService()->sL(
-                        'LLL:EXT:flux/Resources/Private/Language/locallang.xlf:flux.backendLayout.columnsInParent'
-                    );
+                    $label = LocalizationUtility::translate('LLL:EXT:flux/Resources/Private/Language/locallang.xlf:flux.backendLayout.columnsInParent');
                     $items = array_merge(
                         $items,
                         [
@@ -151,9 +150,7 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
             ->from($table)
             ->where($queryBuilder->expr()->eq('uid', $uid));
         $query->getRestrictions()->removeAll();
-        /** @var array[] $results */
-        $results = $query->execute()->fetchAll();
-        return $results[0] ?? null;
+        return $query->executeQuery()->fetchAssociative();
     }
 
     protected function resolvePrimaryProviderForRecord(string $table, array $record): ?GridProviderInterface
