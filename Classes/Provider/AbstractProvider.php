@@ -25,6 +25,7 @@ use FluidTYPO3\Flux\ViewHelpers\FormViewHelper;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
+use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -844,7 +845,7 @@ class AbstractProvider implements ProviderInterface
             FlashMessage::class,
             $error->getMessage(),
             '',
-            FlashMessage::ERROR
+            ContextualFeedbackSeverity::ERROR
         );
         /** @var FlashMessageService $flashMessageService */
         $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
