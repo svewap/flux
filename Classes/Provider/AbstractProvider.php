@@ -22,6 +22,7 @@ use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\MiscellaneousUtility;
 use FluidTYPO3\Flux\Utility\RecursiveArrayUtility;
 use FluidTYPO3\Flux\ViewHelpers\FormViewHelper;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
@@ -683,7 +684,7 @@ class AbstractProvider implements ProviderInterface
      * specific path. This default implementation expects the TYPO3 core
      * to render the default header, so it returns NULL as $headerContent.
      */
-    public function getPreview(array $row): array
+    public function getPreview(array $row, ServerRequestInterface $request): array
     {
         $previewContent = $this->viewBuilder->buildPreviewView(
             $this->getControllerExtensionKeyFromRecord($row),
@@ -691,7 +692,7 @@ class AbstractProvider implements ProviderInterface
             $this->getControllerActionFromRecord($row),
             $this->getPluginName() ?? $this->getControllerNameFromRecord($row),
             $this->getTemplatePathAndFilename($row)
-        )->getPreview($this, $row);
+        )->getPreview($this, $row, $request);
         return [null, $previewContent, empty($previewContent)];
     }
 

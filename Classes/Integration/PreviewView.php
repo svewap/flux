@@ -18,6 +18,8 @@ use FluidTYPO3\Flux\Provider\ProviderInterface;
 use FluidTYPO3\Flux\Service\WorkspacesAwareRecordService;
 use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use FluidTYPO3\Flux\Utility\RecursiveArrayUtility;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Backend\Module\ModuleData;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Backend\View\BackendViewFactory;
 use TYPO3\CMS\Backend\View\Drawing\DrawingConfiguration;
@@ -45,6 +47,8 @@ class PreviewView extends TemplateView
     protected ConfigurationManagerInterface $configurationManager;
     protected WorkspacesAwareRecordService $workspacesAwareRecordService;
 
+    protected ServerRequestInterface $request;
+
     public function __construct(RenderingContextInterface $context = null, readonly RecordFactory $recordFactory)
     {
         parent::__construct($context);
@@ -58,8 +62,9 @@ class PreviewView extends TemplateView
         $this->workspacesAwareRecordService = $workspacesAwareRecordService;
     }
 
-    public function getPreview(ProviderInterface $provider, array $row): string
+    public function getPreview(ProviderInterface $provider, array $row, ServerRequestInterface $request): string
     {
+        $this->request = $request;
         $form = $provider->getForm($row);
         $options = $this->getPreviewOptions($form);
         $mode = $this->getOptionMode($options);
@@ -90,7 +95,7 @@ class PreviewView extends TemplateView
 
         return HookHandler::trigger(
             HookHandler::PREVIEW_RENDERED,
-            ['form' => $form, 'preview' => $previewContent]
+            ['form' => $form, 'preview' => $previewContent, 'request' => $request]
         )['preview'];
     }
 
@@ -203,15 +208,17 @@ class PreviewView extends TemplateView
     {
         $pageId = (int)$row['pid'];
         $pageRecord = $this->workspacesAwareRecordService->getSingle('pages', '*', $pageId);
-        $moduleData = $this->getBackendUser()->getModuleData('web_layout', '');
-        $showHiddenRecords = (int)($moduleData['tt_content_showHidden'] ?? 1);
+        /** @var ModuleData $moduleData */
+        $moduleData = $this->request->getAttribute('moduleData');
+
+        $showHiddenRecords = (int)($moduleData->get('tt_content_showHidden') ?? 1);
 
         $tsConfig = BackendUtility::getPagesTSconfig($pageId);
 
         // For all elements to be shown in draft workspaces & to also show hidden elements by default if user hasn't
         // disabled the option analog behavior to the PageLayoutController at the end of menuConfig()
         if ($this->getActiveWorkspaceId() !== 0 || !$showHiddenRecords) {
-            $moduleData['tt_content_showHidden'] = 1;
+            $moduleData->set('tt_content_showHidden',1);
         }
 
         $parentRecordUid = ($row['l18n_parent'] ?? 0) > 0 ? $row['l18n_parent'] : ($row['t3ver_oid'] ?: $row['uid']);
@@ -230,9 +237,9 @@ class PreviewView extends TemplateView
             $language = $site->getLanguageById((int)$row['sys_language_uid']);
         }
 
-        $viewMode = (int)$moduleData['function'] === 2 ? PageViewMode::LanguageComparisonView : PageViewMode::LayoutView;
+        $viewMode = (int)$moduleData->get('function') === 2 ? PageViewMode::LanguageComparisonView : PageViewMode::LayoutView;
         $drawingConfiguration = DrawingConfiguration::create($backendLayout, $tsConfig, $viewMode);
-        $drawingConfiguration->setShowHidden((bool)$moduleData['showHidden']);
+        $drawingConfiguration->setShowHidden((bool)$moduleData->get('showHidden'));
         //$drawingConfiguration->setLanguageColumns($this->MOD_MENU['language']);
         $drawingConfiguration->setSelectedLanguageId((int)$row['sys_language_uid']);
 

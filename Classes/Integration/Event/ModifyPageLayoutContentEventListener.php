@@ -41,7 +41,7 @@ class ModifyPageLayoutContentEventListener
             PreviewOption::MODE => PreviewOption::MODE_NONE
         ]);
 
-        [, $previewContent, ] = $this->pageProvider->getPreview($row);
+        [, $previewContent, ] = $this->pageProvider->getPreview($row, $event->getRequest());
         if (!empty($previewContent)) {
             $event->setHeaderContent($previewContent);
         }

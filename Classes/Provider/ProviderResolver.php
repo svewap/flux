@@ -13,6 +13,7 @@ use FluidTYPO3\Flux\Core;
 use FluidTYPO3\Flux\Hooks\HookHandler;
 use FluidTYPO3\Flux\Provider\Interfaces\RecordProviderInterface;
 use FluidTYPO3\Flux\Service\TypoScriptService;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -73,6 +74,7 @@ class ProviderResolver implements SingletonInterface
     public function resolveConfigurationProviders(
         ?string $table,
         ?string $fieldName,
+        ServerRequestInterface $request,
         array $row = null,
         ?string $extensionKey = null,
         array $interfaces = [ProviderInterface::class]
@@ -115,7 +117,8 @@ class ProviderResolver implements SingletonInterface
                 'record' => $row,
                 'extensionKey' => $extensionKey,
                 'interfaces' => $interfaces,
-                'providers' => $providers
+                'providers' => $providers,
+                'request' => $request
             ]
         )['providers'];
     }

@@ -9,6 +9,8 @@ namespace FluidTYPO3\Flux\Provider\Interfaces;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use Psr\Http\Message\ServerRequestInterface;
+
 /**
  * Interface PreviewProviderInterface
  *
@@ -19,5 +21,5 @@ interface PreviewProviderInterface
     /**
      * Returns [$header, $content, $stopOthersFromRendering] preview chunks
      */
-    public function getPreview(array $row): array;
+    public function getPreview(array $row, ServerRequestInterface $request): array;
 }

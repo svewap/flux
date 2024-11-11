@@ -10,6 +10,7 @@ namespace FluidTYPO3\Flux\Integration;
 
 use FluidTYPO3\Flux\Provider\ProviderInterface;
 use FluidTYPO3\Flux\Provider\ProviderResolver;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Page\PageRenderer;
 
 class PreviewRenderer
@@ -24,17 +25,17 @@ class PreviewRenderer
         $this->providerResolver = $providerResolver;
     }
 
-    public function renderPreview(array $row): ?array
+    public function renderPreview(array $row, ServerRequestInterface $request): ?array
     {
         $preview = null;
         $fieldName = null;
         $headerContent = null;
         $drawItem = true;
         $itemContent = '<a name="c' . $row['uid'] . '"></a>';
-        $providers = $this->providerResolver->resolveConfigurationProviders('tt_content', $fieldName, $row);
+        $providers = $this->providerResolver->resolveConfigurationProviders('tt_content', $fieldName, $request, $row);
         foreach ($providers as $provider) {
             /** @var ProviderInterface $provider */
-            [$previewHeader, $previewContent, $continueDrawing] = $provider->getPreview($row);
+            [$previewHeader, $previewContent, $continueDrawing] = $provider->getPreview($row, $request);
             if (!empty($previewHeader)) {
                 $headerContent = $previewHeader . (!empty($headerContent) ? ': ' . $headerContent : '');
                 $drawItem = false;
