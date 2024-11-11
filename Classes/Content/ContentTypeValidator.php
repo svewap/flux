@@ -17,8 +17,6 @@ use FluidTYPO3\Flux\Utility\ExtensionNamingUtility;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\ExtensionManagementUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3Fluid\Fluid\Core\Parser\Sequencer;
-use TYPO3Fluid\Fluid\Core\Parser\Source;
 
 /**
  * TCA user feedback: Content Type Validation
