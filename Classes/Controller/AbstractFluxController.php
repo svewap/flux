@@ -163,6 +163,7 @@ abstract class AbstractFluxController extends ActionController
         $provider = $this->providerResolver->resolvePrimaryConfigurationProvider(
             $table,
             $field,
+            $this->request,
             $row,
             null,
             [ControllerProviderInterface::class]
