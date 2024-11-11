@@ -40,7 +40,7 @@ class ProviderResolver implements SingletonInterface
      */
     public function resolvePageProvider(array $row): ?ProviderInterface
     {
-        $provider = $this->resolvePrimaryConfigurationProvider('pages', PageProvider::FIELD_NAME_MAIN, $row);
+        $provider = $this->resolvePrimaryConfigurationProvider('pages', PageProvider::FIELD_NAME_MAIN, null, $row);
         return $provider;
     }
 
@@ -55,11 +55,12 @@ class ProviderResolver implements SingletonInterface
     public function resolvePrimaryConfigurationProvider(
         ?string $table,
         ?string $fieldName,
+        ?ServerRequestInterface $request,
         array $row = null,
         ?string $extensionKey = null,
         array $interfaces = [ProviderInterface::class]
     ) {
-        $providers = $this->resolveConfigurationProviders($table, $fieldName, $row, $extensionKey, $interfaces);
+        $providers = $this->resolveConfigurationProviders($table, $fieldName, $request, $row, $extensionKey, $interfaces);
         return reset($providers) ?: null;
     }
 
@@ -74,7 +75,7 @@ class ProviderResolver implements SingletonInterface
     public function resolveConfigurationProviders(
         ?string $table,
         ?string $fieldName,
-        ServerRequestInterface $request,
+        ?ServerRequestInterface $request,
         array $row = null,
         ?string $extensionKey = null,
         array $interfaces = [ProviderInterface::class]

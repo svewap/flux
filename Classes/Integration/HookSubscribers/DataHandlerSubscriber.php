@@ -71,6 +71,7 @@ class DataHandlerSubscriber
             $providers = $this->getProviderResolver()->resolveConfigurationProviders(
                 $table,
                 null,
+                null,
                 $record,
                 null,
                 [RecordProcessingProvider::class]

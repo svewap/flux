@@ -48,9 +48,13 @@ class TypoScriptService implements SingletonInterface
             return $fromCache;
         }
 
-        $all = $this->configurationManager->getConfiguration(
-            ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
-        );
+        try {
+            $all = $this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+            );
+        } catch (\RuntimeException $e) {
+            return [];
+        }
 
         $value = &$all;
         foreach (explode('.', $path) as $segment) {

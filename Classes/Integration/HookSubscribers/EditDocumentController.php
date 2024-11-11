@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace FluidTYPO3\Flux\Integration\HookSubscribers;
 
+use TYPO3\CMS\Backend\Controller\Event\BeforeFormEnginePageInitializedEvent;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -17,5 +18,10 @@ class EditDocumentController
         /** @var PageRenderer $pageRenderer */
         $pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         //$pageRenderer->loadRequireJsModule('TYPO3/CMS/Flux/FluxColPosAssignment');
+    }
+
+    public function beforeFormEnginePageInitialized(BeforeFormEnginePageInitializedEvent $event) : void
+    {
+        $GLOBALS['TYPO3_REQUEST'] = $event->getRequest();
     }
 }

@@ -67,6 +67,7 @@ class ProviderProcessor implements FormDataProviderInterface
         $providers = $this->resolver->resolveConfigurationProviders(
             $result['tableName'],
             null,
+            null,
             $result['databaseRow'],
             null,
             [DataStructureProviderInterface::class]

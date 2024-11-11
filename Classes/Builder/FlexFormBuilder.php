@@ -15,6 +15,7 @@ use FluidTYPO3\Flux\Provider\PageProvider;
 use FluidTYPO3\Flux\Provider\ProviderResolver;
 use FluidTYPO3\Flux\Service\CacheService;
 use FluidTYPO3\Flux\Service\PageService;
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\VersionNumberUtility;
@@ -39,6 +40,7 @@ class FlexFormBuilder
         string $tableName,
         string $fieldName,
         array $record,
+        ?ServerRequestInterface $request = null,
         array $originalIdentifier = []
     ): array {
         // Select a limited set of the $record being passed. When the $record is a new record, it will have
@@ -94,7 +96,7 @@ class FlexFormBuilder
             $limitedRecordData = array_intersect_key($record, $fields);
             $limitedRecordData[$fieldName] = $record[$fieldName];
         }
-        $provider = $this->providerResolver->resolvePrimaryConfigurationProvider($tableName, $fieldName, $record);
+        $provider = $this->providerResolver->resolvePrimaryConfigurationProvider($tableName, $fieldName, $request, $record);
         if (!$provider) {
             return [];
         }
@@ -136,6 +138,7 @@ class FlexFormBuilder
         $provider = $this->providerResolver->resolvePrimaryConfigurationProvider(
             $identifier['tableName'],
             $fieldName,
+            null,
             $record,
             null,
             [DataStructureProviderInterface::class]

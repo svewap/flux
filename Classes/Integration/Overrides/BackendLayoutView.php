@@ -160,6 +160,7 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
         return $providerResolver->resolvePrimaryConfigurationProvider(
             $table,
             null,
+            null,
             $record,
             null,
             [GridProviderInterface::class]

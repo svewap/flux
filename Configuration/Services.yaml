@@ -144,6 +144,10 @@ services:
         identifier: 'flux-requireColumnPositionJavaScript'
         method: 'requireColumnPositionJavaScript'
         event: TYPO3\CMS\Backend\Controller\Event\AfterFormEnginePageInitializedEvent
+      - name: event.listener
+        identifier: 'flux-beforeFormEnginePageInitializedEvent'
+        method: 'beforeFormEnginePageInitialized'
+        event: TYPO3\CMS\Backend\Controller\Event\BeforeFormEnginePageInitializedEvent
   FluidTYPO3\Flux\Integration\Event\BeforeFlexFormDataStructureIdentifierInitializedEventListener:
     tags:
       - name: event.listener
