@@ -105,7 +105,7 @@ class WizardItemsManipulator
         // returned contains a Column which matches the desired colPos value, attempt to read a list
         // of allowed/denied content element types from it.
         $pageRecord = (array) $this->recordService->getSingle('pages', '*', $pageUid);
-        $pageProviders = $this->providerResolver->resolveConfigurationProviders('pages', null, $pageRecord);
+        $pageProviders = $this->providerResolver->resolveConfigurationProviders('pages', null, null, $pageRecord);
         $parentRecordUid = ColumnNumberUtility::calculateParentUid($columnPosition);
         $pageColumnPosition = $parentRecordUid > 0
             ? $this->findParentColumnPosition($parentRecordUid)
