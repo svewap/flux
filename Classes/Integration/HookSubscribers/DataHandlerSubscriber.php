@@ -588,6 +588,7 @@ class DataHandlerSubscriber
         $primaryProvider = $resolver->resolvePrimaryConfigurationProvider(
             $table,
             null,
+            null,
             $originalRecord,
             null,
             [GridProviderInterface::class]
