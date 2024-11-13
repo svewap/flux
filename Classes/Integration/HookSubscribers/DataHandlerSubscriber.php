@@ -211,6 +211,7 @@ class DataHandlerSubscriber
                 $primaryConfigurationProvider = $resolver->resolvePrimaryConfigurationProvider(
                     $table,
                     $fieldName,
+                    null,
                     $fieldArray
                 );
 
