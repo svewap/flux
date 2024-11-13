@@ -26,7 +26,7 @@ class UserFunctions
         [$table, $field] = $parameters['conditionParameters'];
         /** @var ProviderResolver $providerResolver */
         $providerResolver = GeneralUtility::makeInstance(ProviderResolver::class);
-        $provider = $providerResolver->resolvePrimaryConfigurationProvider($table, $field, $parameters['record']);
+        $provider = $providerResolver->resolvePrimaryConfigurationProvider($table, $field, null, $parameters['record']);
 
         if (!$provider) {
             return true;
