@@ -132,6 +132,7 @@ class WizardItemsManipulator
             $contentProviders = $this->providerResolver->resolveConfigurationProviders(
                 'tt_content',
                 null,
+                null,
                 $parentRecord
             );
             $this->appendToWhiteAndBlacklistFromProviders(
