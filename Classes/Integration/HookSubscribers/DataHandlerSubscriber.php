@@ -9,6 +9,7 @@ namespace FluidTYPO3\Flux\Integration\HookSubscribers;
  * LICENSE.md file that was distributed with this source code.
  */
 
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\ParameterType;
 use FluidTYPO3\Flux\Content\ContentTypeManager;
 use FluidTYPO3\Flux\Enum\ExtensionOption;
@@ -575,6 +576,9 @@ class DataHandlerSubscriber
         return $firstResult ?: null;
     }
 
+    /**
+     * @throws Exception
+     */
     protected function getParentAndRecordsNestedInGrid(
         string $table,
         int $parentUid,
@@ -646,7 +650,7 @@ class DataHandlerSubscriber
             $query->andWhere($queryBuilder->expr()->neq('pid', -1));
         }
 
-        $records = $query->execute()->fetchAll();
+        $records = $query->executeQuery()->fetchAllAssociative();
 
         // Selecting records to return. The "sorting DESC" is very intentional; copy operations will place records
         // into the top of columns which means reading records in reverse order causes the correct final order.
