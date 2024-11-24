@@ -8,7 +8,6 @@ namespace FluidTYPO3\Flux\Service;
  * LICENSE.md file that was distributed with this source code.
  */
 
-use Doctrine\DBAL\Driver\ResultStatement;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Result;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
@@ -55,7 +54,7 @@ class RecordService implements SingletonInterface
             $statement->setFirstResult($offset);
         }
 
-        return $statement->execute()->fetchAll();
+        return $statement->executeQuery()->fetchAllAssociative();
     }
 
     public function getSingle(string $table, string $fields, int $uid): ?array
@@ -67,14 +66,14 @@ class RecordService implements SingletonInterface
         $results = $queryBuilder->from($table)
             ->select(...explode(',', $fields))
             ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($uid)))
-            ->execute()
-            ->fetchAll() ?: [];
+            ->executeQuery()
+            ->fetchAllAssociative() ?: [];
         $firstResult = reset($results);
         return $firstResult ? (array) $firstResult : null;
     }
 
     /**
-     * @return boolean|Statement|ResultStatement|Result|int
+     * @return boolean|Statement|Result|int
      */
     public function update(string $table, array $record)
     {
@@ -84,7 +83,7 @@ class RecordService implements SingletonInterface
         foreach ($record as $name => $value) {
             $builder->set($name, $value);
         }
-        return $builder->execute();
+        return $builder->executeStatement();
     }
 
     /**
@@ -96,7 +95,7 @@ class RecordService implements SingletonInterface
         $queryBuilder = $this->getQueryBuilder($table);
         return (bool) $queryBuilder->delete($table)
             ->where($queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($clauseUid)))
-            ->execute();
+            ->executeStatement();
     }
 
     public function preparedGet(string $table, string $fields, string $condition, array $values = []): array
@@ -106,8 +105,8 @@ class RecordService implements SingletonInterface
             ->from($table)
             ->where($condition)
             ->setParameters($values)
-            ->execute()
-            ->fetchAll();
+            ->executeQuery()
+            ->fetchAllAssociative();
     }
 
     protected function getQueryBuilder(string $table): QueryBuilder
