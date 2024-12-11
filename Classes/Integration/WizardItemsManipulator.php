@@ -200,7 +200,7 @@ class WizardItemsManipulator
         if (0 < count($blacklist)) {
             foreach ($blacklist as $contentElementType) {
                 foreach ($items as $name => $item) {
-                    if (($item['tt_content_defValues']['CType'] ?? null) === $contentElementType) {
+                    if (($item['defaultValues']['CType'] ?? null) === $contentElementType) {
                         unset($items[$name]);
                     }
                 }
@@ -214,8 +214,8 @@ class WizardItemsManipulator
         $whitelist = array_unique($whitelist);
         if (0 < count($whitelist)) {
             foreach ($items as $name => $item) {
-                $contentType = $item['tt_content_defValues']['CType'] ?? '';
-                if (strpos($name, '_') !== false && !in_array($contentType, $whitelist, true)) {
+                $contentType = $item['defaultValues']['CType'] ?? '';
+                if (str_contains($name, '_') && !in_array($contentType, $whitelist, true)) {
                     unset($items[$name]);
                 }
             }
