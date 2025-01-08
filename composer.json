@@ -27,15 +27,21 @@
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-dom": "*",
-        "typo3/cms-core": "^10 || ^11 || ^12 || ^13 || dev-master",
-        "typo3/cms-fluid": "^10 || ^11 || ^12 || ^13 || dev-master",
-        "typo3/cms-backend": "^10 || ^11 || ^12 || ^13 || dev-master",
-        "typo3/cms-frontend": "^10 || ^11 || ^12 || ^13 || dev-master",
-        "typo3/cms-recordlist": "^10 || ^11 || ^12 || ^13 || dev-master"
+        "typo3/cms-core": "^13 || dev-master",
+        "typo3/cms-fluid": "^13 || dev-master",
+        "typo3/cms-backend": "^13 || dev-master",
+        "typo3/cms-frontend": "^13 || dev-master",
+        "typo3/cms-recordlist": "^13 || dev-master",
+        "cweagans/composer-patches": "^1"
     },
     "extra": {
         "typo3/cms": {
             "extension-key": "flux"
+        },
+        "patches": {
+            "typo3/cms-core": {
+                "Fix RelationMapBuilder core class": "patches/RelationMapBuilder.patch"
+            }
         }
     },
     "replace": {

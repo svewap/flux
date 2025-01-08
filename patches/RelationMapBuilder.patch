@@ -1,0 +1,12 @@
+--- Classes/Schema/RelationMapBuilder.php	2024-10-23 12:09:55.553468648 +0200
++++ Classes/Schema/RelationMapBuilder.php	2024-10-23 12:26:45.672547786 +0200
+@@ -73,6 +73,9 @@
+             ];
+             $flexStructureAsArray = $flexFormTools->parseDataStructureByIdentifier(json_encode($dataStructureIdentifier));
+             foreach ($flexStructureAsArray['sheets'] as $sheetIdentifier => $sheet) {
++                if (!is_array($sheet['ROOT']['el'])) {
++                    continue;
++                }
+                 foreach ($sheet['ROOT']['el'] as $flexFieldName => $flexFieldConfig) {
+                     $fieldIdentifier = $sheetIdentifier . '/' . $flexFieldName;
+                     $relationMap->add($tableName, $fieldName, $flexFieldConfig['config'] ?? [], $fieldIdentifier);
