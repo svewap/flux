@@ -40,7 +40,7 @@
         },
         "patches": {
             "typo3/cms-core": {
-                "Fix RelationMapBuilder core class": "patches/RelationMapBuilder.patch"
+                "Fix RelationMapBuilder core class": "vendor/fluidtypo3/flux/patches/RelationMapBuilder.patch"
             }
         }
     },
