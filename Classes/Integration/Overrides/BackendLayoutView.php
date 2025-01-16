@@ -141,7 +141,7 @@ class BackendLayoutView extends \TYPO3\CMS\Backend\View\BackendLayoutView
     /**
      * @codeCoverageIgnore
      */
-    protected function loadRecordFromTable(string $table, int $uid): ?array
+    protected function loadRecordFromTable(string $table, int $uid): array|false
     {
         /** @var ConnectionPool $connectionPool */
         $connectionPool = GeneralUtility::makeInstance(ConnectionPool::class);
