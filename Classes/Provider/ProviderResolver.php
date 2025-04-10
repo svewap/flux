@@ -56,7 +56,7 @@ class ProviderResolver implements SingletonInterface
         ?string $table,
         ?string $fieldName,
         ?ServerRequestInterface $request,
-        array $row = null,
+        ?array $row = null,
         ?string $extensionKey = null,
         array $interfaces = [ProviderInterface::class]
     ) {
@@ -76,7 +76,7 @@ class ProviderResolver implements SingletonInterface
         ?string $table,
         ?string $fieldName,
         ?ServerRequestInterface $request,
-        array $row = null,
+        ?array $row = null,
         ?string $extensionKey = null,
         array $interfaces = [ProviderInterface::class]
     ) {

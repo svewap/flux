@@ -49,7 +49,7 @@ class PreviewView extends TemplateView
 
     protected ServerRequestInterface $request;
 
-    public function __construct(RenderingContextInterface $context = null, readonly RecordFactory $recordFactory)
+    public function __construct(RenderingContextInterface $context, readonly RecordFactory $recordFactory)
     {
         parent::__construct($context);
 
@@ -99,7 +99,7 @@ class PreviewView extends TemplateView
         )['preview'];
     }
 
-    protected function getPreviewOptions(Form $form = null): array
+    protected function getPreviewOptions(?Form $form = null): array
     {
         if (!is_object($form) || !$form->hasOption(PreviewOption::PREVIEW)) {
             return [
@@ -121,7 +121,7 @@ class PreviewView extends TemplateView
         return (boolean)($options[PreviewOption::TOGGLE] ?? true);
     }
 
-    protected function renderPreviewSection(ProviderInterface $provider, array $row, Form $form = null): ?string
+    protected function renderPreviewSection(ProviderInterface $provider, array $row, ?Form $form = null): ?string
     {
         $templatePathAndFilename = $provider->getTemplatePathAndFilename($row);
         if (!$templatePathAndFilename) {
