@@ -552,30 +552,7 @@ abstract class AbstractFluxController extends ActionController
             );
         }
 
-        if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '11.5', '<')) {
-            /** @var TypoScriptFrontendController|null $tsfe */
-            $tsfe = $GLOBALS['TSFE'] ?? null;
-        } else {
-            $tsfe = $contentObject->getTypoScriptFrontendController();
-        }
-        if ($tsfe === null) {
-            throw new \UnexpectedValueException(
-                "Record of table " . $this->getFluxTableName() . ' not found',
-                1729864782
-            );
-        }
-
-        [$table, $recordUid] = GeneralUtility::trimExplode(
-            ':',
-            $tsfe->currentRecord ?: $contentObject->currentRecord
-        );
-        $record = $this->recordService->getSingle($table, '*', (integer) $recordUid);
-        if ($record === null) {
-            throw new \UnexpectedValueException(
-                "Record of table " . $this->getFluxTableName() . ' not found',
-                1729864698
-            );
-        }
+        $record = $contentObject->data;
 
         if ($record['_LOCALIZED_UID'] ?? false) {
             $record = array_merge(
@@ -592,7 +569,7 @@ abstract class AbstractFluxController extends ActionController
 
     protected function getContentObject(): ?ContentObjectRenderer
     {
-        return ContentObjectFetcher::resolve($this->configurationManager);
+        return $this->request->getAttribute('currentContentObject');
     }
 
     protected function getServerRequest(): ServerRequestInterface
