@@ -285,7 +285,7 @@ abstract class AbstractFluxController extends ActionController
     /**
      * @return \Psr\Http\Message\ResponseInterface|Response
      */
-    protected function createHtmlResponse(string $html = null)
+    protected function createHtmlResponse(?string $html = null)
     {
         if (method_exists($this, 'htmlResponse')) {
             return parent::htmlResponse($html);
@@ -364,7 +364,7 @@ abstract class AbstractFluxController extends ActionController
             /** @var ResponseInterface $response */
             $response = GeneralUtility::makeInstance(Response::class);
         }
-    
+
         $shouldRelay = $this->hasSubControllerActionOnForeignController($extensionName, $controllerName, $actionName);
         $foreignControllerClass = null;
         $content = null;
