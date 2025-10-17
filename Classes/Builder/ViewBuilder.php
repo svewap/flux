@@ -126,9 +126,9 @@ class ViewBuilder
         }
 
         if (is_array($extensionKeyOrConfiguration)) {
-            $paths->setTemplateRootPaths($extensionKeyOrConfiguration[TemplatePaths::CONFIG_TEMPLATEROOTPATHS]);
-            $paths->setLayoutRootPaths($extensionKeyOrConfiguration[TemplatePaths::CONFIG_LAYOUTROOTPATHS]);
-            $paths->setPartialRootPaths($extensionKeyOrConfiguration[TemplatePaths::CONFIG_PARTIALROOTPATHS]);
+            $paths->setTemplateRootPaths($extensionKeyOrConfiguration[TemplatePaths::CONFIG_TEMPLATEROOTPATHS] ?? []);
+            $paths->setLayoutRootPaths($extensionKeyOrConfiguration[TemplatePaths::CONFIG_LAYOUTROOTPATHS] ?? []);
+            $paths->setPartialRootPaths($extensionKeyOrConfiguration[TemplatePaths::CONFIG_PARTIALROOTPATHS] ?? []);
         } else {
             $extensionKey = ExtensionNamingUtility::getExtensionKey($extensionKeyOrConfiguration);
             try {
@@ -214,7 +214,7 @@ class ViewBuilder
 
         return $view;
     }
-    
+
     private function createFluidPathSet(string $extensionKey, string $subPath): array
     {
         return [
