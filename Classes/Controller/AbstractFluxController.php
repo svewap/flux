@@ -470,7 +470,8 @@ abstract class AbstractFluxController extends ActionController
             ),
             $controllerActionName,
             $pluginName,
-            $arguments
+            $arguments,
+            $serverRequest->getAttributes()
         );
 
         /** @var ControllerInterface $potentialControllerInstance */
@@ -569,11 +570,17 @@ abstract class AbstractFluxController extends ActionController
 
     protected function getContentObject(): ?ContentObjectRenderer
     {
-        return $this->request->getAttribute('currentContentObject');
+        return ContentObjectFetcher::resolve(
+            $this->configurationManager,
+            $this->request instanceof ServerRequestInterface ? $this->request : null
+        );
     }
 
     protected function getServerRequest(): ServerRequestInterface
     {
+        if ($this->request instanceof ServerRequestInterface) {
+            return $this->request;
+        }
         /** @var ServerRequestInterface $request */
         $request = $GLOBALS['TYPO3_REQUEST'];
         return $request;
